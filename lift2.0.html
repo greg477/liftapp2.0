@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lift">
+<meta name="theme-color" content="#0a0a0a">
+<title>Lift</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0a;--bg1:#141414;--bg2:#1c1c1c;--bg3:#252525;--txt:#f0f0f0;--txt2:#999;
+  --txt3:#555;--border:#272727;--border2:#333;--red:#e24b4a;--green:#1d9e75;
+  --blue:#378add;--amber:#ef9f27;--mode:#1d9e75;--r:10px;--nav:60px}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;font-size:15px}
+#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto}
+#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#screen::-webkit-scrollbar{display:none}
+#nav{background:var(--bg1);border-top:1px solid var(--border);display:flex;
+  padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;background:none;border:none;color:var(--txt3);font-size:10px;
+  padding:8px 4px;cursor:pointer;transition:color .15s;min-height:var(--nav)}
+.nb.on{color:var(--mode)}
+.nb svg{width:22px;height:22px;stroke-width:1.8}
+.page-head{padding:20px 16px 12px;display:flex;align-items:flex-start;justify-content:space-between}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.3px}
+.page-sub{font-size:12px;color:var(--txt2);margin-top:2px}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt3);margin-bottom:10px}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;border:none;
+  border-radius:var(--r);font-weight:600;cursor:pointer;transition:opacity .1s,transform .08s}
+.btn:active{opacity:.8;transform:scale(.97)}
+.btn-xl{height:54px;font-size:16px;width:100%}
+.btn-sm{height:36px;font-size:13px;padding:0 14px}
+.btn-p{background:var(--mode);color:#fff}
+.btn-s{background:var(--bg2);color:var(--txt);border:1px solid var(--border2)}
+.btn-g{background:none;color:var(--txt2);border:1px solid var(--border)}
+.mode-pill{display:inline-flex;align-items:center;gap:7px;background:var(--bg2);
+  border:1px solid var(--border2);border-radius:20px;padding:6px 14px;
+  font-size:13px;font-weight:500;cursor:pointer;color:var(--txt)}
+.mdot{width:8px;height:8px;border-radius:50%;background:var(--mode);flex-shrink:0}
+.day-card{background:var(--bg1);border:1.5px solid var(--border);border-radius:14px;
+  padding:14px 16px;cursor:pointer;transition:border-color .15s;margin-bottom:10px}
+.day-card.sel{border-color:var(--mode)}
+.ex-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.ex-row:last-child{border-bottom:none}
+.ex-name{font-size:14px;font-weight:500}
+.ex-meta{font-size:11px;color:var(--txt3);margin-top:2px}
+.ex-swap-btn{background:none;border:1px solid var(--border2);color:var(--txt2);
+  font-size:11px;padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;margin-left:6px}
+.wh{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+.wh-title{font-size:17px;font-weight:700}
+.wh-sub{font-size:12px;color:var(--txt2);margin-top:2px}
+.ex-scroll{display:flex;gap:6px;padding:10px 16px;overflow-x:auto}
+.ex-scroll::-webkit-scrollbar{display:none}
+.ex-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;
+  cursor:pointer;border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.set-dots{display:flex;gap:7px;align-items:center}
+.sdot{width:11px;height:11px;border-radius:50%;border:2px solid var(--border2);transition:all .2s}
+.sdot.done{background:var(--mode);border-color:var(--mode)}
+.sdot.cur{border-color:var(--mode);box-shadow:0 0 0 2px color-mix(in srgb,var(--mode) 25%,transparent)}
+
+.rpe-scale{display:flex;gap:4px}
+.rpe-btn{flex:1;height:44px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:7px;color:var(--txt2);font-size:13px;font-weight:600;cursor:pointer;transition:all .1s}
+.rpe-btn.sel{background:var(--mode);color:#fff;border-color:var(--mode)}
+.timer-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px;min-height:calc(100vh - var(--nav) - 160px)}
+.t-ring{position:relative;width:200px;height:200px;margin-bottom:24px}
+.t-ring svg{transform:rotate(-90deg)}
+.t-track{fill:none;stroke:var(--bg2);stroke-width:9}
+.t-fill{fill:none;stroke:var(--mode);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.t-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:52px;font-weight:700;font-family:'SF Mono','Courier New',monospace;font-variant-numeric:tabular-nums}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end}
+.modal{background:var(--bg1);border-radius:20px 20px 0 0;width:100%;max-width:430px;margin:0 auto;
+  padding:20px 16px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.hist-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.mode-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.pill{background:var(--bg2);border-radius:20px;padding:3px 9px;font-size:11px;color:var(--txt2)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat-box{background:var(--bg2);border-radius:9px;padding:12px 10px;text-align:center}
+.stat-n{font-size:10px;color:var(--txt3);margin-bottom:5px}
+.stat-v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.empty{text-align:center;padding:60px 24px;color:var(--txt3)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.in-prog-banner{background:var(--bg2);border:1.5px solid var(--mode);border-radius:var(--r);
+  padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:14px}
+.add-acc-btn{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  background:none;border:1.5px dashed var(--border2);border-radius:var(--r);
+  color:var(--txt2);font-size:14px;cursor:pointer;width:100%}
+.past-set-row{display:flex;justify-content:space-between;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:13px}
+.past-set-row:last-child{border-bottom:none}
+.workout-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);
+  padding:10px 16px;display:flex;gap:10px;z-index:9}
+.workout-bar .btn{flex:1;height:46px;font-size:13px;font-weight:600}
+/* Drum pickers */
+.drum-wrap{position:relative;overflow:hidden;border-radius:10px;background:var(--bg2);
+  border:1px solid var(--border2)}
+.drum-scroll{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
+.drum-scroll::-webkit-scrollbar{display:none}
+.drum-item{display:flex;align-items:center;justify-content:center;scroll-snap-align:center;
+  font-variant-numeric:tabular-nums;font-family:'SF Mono','Courier New',monospace;cursor:pointer}
+.drum-mask-top{position:absolute;top:0;left:0;right:0;pointer-events:none;z-index:2;
+  background:linear-gradient(to bottom,var(--bg2) 15%,color-mix(in srgb,var(--bg2) 60%,transparent) 60%,transparent)}
+.drum-mask-bot{position:absolute;bottom:0;left:0;right:0;pointer-events:none;z-index:2;
+  background:linear-gradient(to top,var(--bg2) 15%,color-mix(in srgb,var(--bg2) 60%,transparent) 60%,transparent)}
+.drum-sel-line{position:absolute;left:0;right:0;pointer-events:none;z-index:3;
+  border-top:1px solid var(--border2);border-bottom:1px solid var(--border2)}
+.custom-dot{width:6px;height:6px;border-radius:50%;background:var(--mode);
+  display:inline-block;margin-right:5px;flex-shrink:0}
+.compound-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;
+  background:rgba(239,159,39,.2);color:var(--amber);letter-spacing:.04em;
+  text-transform:uppercase;margin-left:6px;vertical-align:middle}
+/* Filter tabs */
+.filt-tabs{display:flex;gap:6px;padding:0 16px 14px;overflow-x:auto}
+.filt-tabs::-webkit-scrollbar{display:none}
+.filt-tab{flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1px solid var(--border2);background:var(--bg2);color:var(--txt2);cursor:pointer;white-space:nowrap}
+.filt-tab.on{background:var(--mode);color:#fff;border-color:var(--mode)}
+.sugg-badge{display:inline-block;background:rgba(29,158,117,.2);color:#1d9e75;
+  font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.cur-ex-card{background:var(--bg2);border:1.5px solid var(--mode);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+/* Builder */
+.split-card{background:var(--bg1);border:1.5px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s,background .2s}
+.split-card.sel{border-color:var(--mode);background:color-mix(in srgb,var(--mode) 8%,var(--bg1))}
+.split-card .sc-name{font-size:16px;font-weight:700;margin-bottom:4px}
+.sc-tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}
+.sc-tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;
+  background:var(--bg2);color:var(--txt2);border:1px solid var(--border2)}
+.sc-tag.hi{background:color-mix(in srgb,var(--mode) 15%,transparent);
+  color:var(--mode);border-color:color-mix(in srgb,var(--mode) 30%,transparent)}
+.days-grid{display:flex;gap:8px;margin-bottom:20px}
+.day-btn{flex:1;height:52px;border-radius:10px;background:var(--bg2);border:2px solid var(--border2);
+  color:var(--txt);font-size:18px;font-weight:700;cursor:pointer;transition:all .15s}
+.day-btn.sel{background:var(--mode);border-color:var(--mode);color:#fff}
+.step-bar{display:flex;gap:6px;padding:0 16px 16px}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--border2);transition:background .3s}
+.step-dot.done{background:var(--mode)}
+.preview-day{background:var(--bg2);border-radius:10px;padding:0;margin-bottom:8px;overflow:hidden}
+.preview-day-header{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;cursor:pointer;user-select:none}
+.preview-day-body{padding:0 14px 12px}
+.freq-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;
+  background:rgba(55,138,221,.2);color:var(--blue)}
+select{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--txt);
+  padding:11px 14px;padding-right:36px;border-radius:9px;font-size:14px;appearance:none;margin-bottom:14px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen"></div>
+  <nav id="nav">
+    <button class="nb on" id="nb-home" onclick="navTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Today
+    </button>
+    <button class="nb" id="nb-builder" onclick="navTo('builder')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Plan
+    </button>
+    <button class="nb" id="nb-active" onclick="navTo('active')" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Workout
+    </button>
+    <button class="nb" id="nb-history" onclick="navTo('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Log
+    </button>
+    <button class="nb" id="nb-progress" onclick="navTo('progress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Progress
+    </button>
+  </nav>
+</div>
+<script>
+// =====================================================================
+// DATA — EXERCISES  (compound:true = primary compound movement)
+// =====================================================================
+const EX = {
+  'bb-sq':    {n:'Barbell Back Squat',    mg:'Legs',      eq:'Barbell',   compound:true,  alt:['ares-hack','ares-lp','bb-fsq','db-gob']},
+  'bb-fsq':   {n:'Front Squat',           mg:'Legs',      eq:'Barbell',   compound:true,  alt:['bb-sq','ares-hack','db-gob']},
+  'bb-dl':    {n:'Conventional Deadlift', mg:'Posterior', eq:'Barbell',   compound:true,  alt:['bb-rdl','ares-hack','bb-trap']},
+  'bb-trap':  {n:'Trap Bar Deadlift',     mg:'Posterior', eq:'Barbell',   compound:true,  alt:['bb-dl','bb-rdl','ares-lp']},
+  'bb-rdl':   {n:'Romanian Deadlift',     mg:'Posterior', eq:'Barbell',   compound:false, alt:['db-rdl','ares-curl','bb-gm']},
+  'bb-gm':    {n:'Good Morning',          mg:'Posterior', eq:'Barbell',   compound:false, alt:['bb-rdl','db-rdl','ares-curl']},
+  'bb-bench': {n:'Barbell Bench Press',   mg:'Chest',     eq:'Barbell',   compound:true,  alt:['db-flat','ares-cp','halo-fly','bb-inc']},
+  'bb-inc':   {n:'Incline Bench Press',   mg:'Chest',     eq:'Barbell',   compound:true,  alt:['db-inc','halo-ip','bb-bench']},
+  'bb-ohp':   {n:'Overhead Press',        mg:'Shoulders', eq:'Barbell',   compound:true,  alt:['db-ohp','ares-sp','halo-sp']},
+  'bb-row':   {n:'Barbell Row',           mg:'Back',      eq:'Barbell',   compound:true,  alt:['db-row','ares-row','halo-row','cb-row']},
+  'bb-curl':  {n:'Barbell Curl',          mg:'Biceps',    eq:'Barbell',   compound:false, alt:['db-curl','halo-bc','cb-curl']},
+  'bb-skull': {n:'Skull Crusher',         mg:'Triceps',   eq:'Barbell',   compound:false, alt:['db-tex','halo-te','cb-pd']},
+  'ares-hack':{n:'Hack Squat (Ares)',     mg:'Legs',      eq:'Ares 2.0',  compound:true,  alt:['bb-sq','ares-lp','db-gob']},
+  'ares-lp':  {n:'Leg Press (Ares)',      mg:'Legs',      eq:'Ares 2.0',  compound:true,  alt:['ares-hack','bb-sq','db-gob']},
+  'ares-curl':{n:'Leg Curl (Ares)',       mg:'Posterior', eq:'Ares 2.0',  compound:false, alt:['bb-rdl','db-rdl']},
+  'ares-ext': {n:'Leg Extension (Ares)',  mg:'Legs',      eq:'Ares 2.0',  compound:false, alt:['ares-hack','ares-lp']},
+  'ares-cp':  {n:'Chest Press (Ares)',    mg:'Chest',     eq:'Ares 2.0',  compound:true,  alt:['bb-bench','db-flat','halo-fly']},
+  'ares-sp':  {n:'Shoulder Press (Ares)', mg:'Shoulders', eq:'Ares 2.0',  compound:true,  alt:['bb-ohp','db-ohp','halo-sp']},
+  'ares-row': {n:'Row (Ares)',            mg:'Back',      eq:'Ares 2.0',  compound:true,  alt:['bb-row','halo-row','cb-row','db-row']},
+  'halo-fly': {n:'Halo Chest Fly',        mg:'Chest',     eq:'Halo',      compound:false, alt:['cb-fly','db-fly','bb-bench']},
+  'halo-ip':  {n:'Halo Incline Press',    mg:'Chest',     eq:'Halo',      compound:true,  alt:['bb-inc','db-inc','halo-fly']},
+  'halo-row': {n:'Halo Row',              mg:'Back',      eq:'Halo',      compound:true,  alt:['bb-row','db-row','cb-row','ares-row']},
+  'halo-sp':  {n:'Halo Shoulder Press',   mg:'Shoulders', eq:'Halo',      compound:true,  alt:['bb-ohp','db-ohp','ares-sp']},
+  'halo-lat': {n:'Halo Lateral Raise',    mg:'Shoulders', eq:'Halo',      compound:false, alt:['db-lat','cb-lat']},
+  'halo-te':  {n:'Halo Tricep Ext.',      mg:'Triceps',   eq:'Halo',      compound:false, alt:['bb-skull','db-tex','cb-pd']},
+  'halo-bc':  {n:'Halo Bicep Curl',       mg:'Biceps',    eq:'Halo',      compound:false, alt:['bb-curl','db-curl','cb-curl']},
+  'halo-po':  {n:'Halo Pullover',         mg:'Back',      eq:'Halo',      compound:false, alt:['db-po','cb-po']},
+  'db-flat':  {n:'DB Flat Press',         mg:'Chest',     eq:'Dumbbell',  compound:true,  alt:['bb-bench','ares-cp','halo-fly']},
+  'db-inc':   {n:'DB Incline Press',      mg:'Chest',     eq:'Dumbbell',  compound:true,  alt:['bb-inc','halo-ip']},
+  'db-ohp':   {n:'DB Shoulder Press',     mg:'Shoulders', eq:'Dumbbell',  compound:true,  alt:['bb-ohp','ares-sp','halo-sp']},
+  'db-lat':   {n:'DB Lateral Raise',      mg:'Shoulders', eq:'Dumbbell',  compound:false, alt:['halo-lat','cb-lat']},
+  'db-front': {n:'DB Front Raise',        mg:'Shoulders', eq:'Dumbbell',  compound:false, alt:['db-lat','halo-lat']},
+  'db-row':   {n:'DB One-Arm Row',        mg:'Back',      eq:'Dumbbell',  compound:true,  alt:['bb-row','halo-row','ares-row']},
+  'db-po':    {n:'DB Pullover',           mg:'Back',      eq:'Dumbbell',  compound:false, alt:['halo-po','cb-po']},
+  'db-rdl':   {n:'DB Romanian Deadlift',  mg:'Posterior', eq:'Dumbbell',  compound:false, alt:['bb-rdl','ares-curl']},
+  'db-gob':   {n:'Goblet Squat',          mg:'Legs',      eq:'Dumbbell',  compound:true,  alt:['ares-hack','ares-lp','bb-sq']},
+  'db-curl':  {n:'DB Bicep Curl',         mg:'Biceps',    eq:'Dumbbell',  compound:false, alt:['bb-curl','halo-bc','cb-curl']},
+  'db-ham':   {n:'Hammer Curl',           mg:'Biceps',    eq:'Dumbbell',  compound:false, alt:['db-curl','cb-curl']},
+  'db-tex':   {n:'DB Tricep Extension',   mg:'Triceps',   eq:'Dumbbell',  compound:false, alt:['bb-skull','halo-te','cb-pd']},
+  'db-lunge': {n:'DB Walking Lunge',      mg:'Legs',      eq:'Dumbbell',  compound:false, alt:['ares-hack','ares-lp','db-gob']},
+  'db-fly':   {n:'DB Chest Fly',          mg:'Chest',     eq:'Dumbbell',  compound:false, alt:['halo-fly','cb-fly']},
+  'bw-pullup':{n:'Pull-Up / Chin-Up',     mg:'Back',      eq:'Bodyweight',compound:true,  alt:['cb-pd2','halo-row','cb-row']},
+  'bw-dip':   {n:'Chest Dip',             mg:'Chest',     eq:'Bodyweight',compound:true,  alt:['db-flat','halo-te','cb-pd']},
+  'cb-row':   {n:'Cable Row',             mg:'Back',      eq:'Cable',     compound:true,  alt:['bb-row','halo-row','ares-row']},
+  'cb-pd2':   {n:'Lat Pulldown',          mg:'Back',      eq:'Cable',     compound:true,  alt:['bw-pullup','halo-row','cb-row']},
+  'cb-fly':   {n:'Cable Chest Fly',       mg:'Chest',     eq:'Cable',     compound:false, alt:['halo-fly','db-fly']},
+  'cb-pd':    {n:'Cable Tricep Pushdown', mg:'Triceps',   eq:'Cable',     compound:false, alt:['halo-te','db-tex','bb-skull']},
+  'cb-curl':  {n:'Cable Bicep Curl',      mg:'Biceps',    eq:'Cable',     compound:false, alt:['db-curl','bb-curl','halo-bc']},
+  'cb-lat':   {n:'Cable Lateral Raise',   mg:'Shoulders', eq:'Cable',     compound:false, alt:['db-lat','halo-lat']},
+  'cb-po':    {n:'Cable Pullover',        mg:'Back',      eq:'Cable',     compound:false, alt:['halo-po','db-po']},
+  'cb-fp':    {n:'Face Pull',             mg:'Shoulders', eq:'Cable',     compound:false, alt:['db-lat','halo-lat']},
+  'cb-pal':   {n:'Pallof Press',          mg:'Core',      eq:'Cable',     compound:true,  alt:['co-plank','co-ab']},
+  'co-plank': {n:'Plank',                 mg:'Core',      eq:'Bodyweight',compound:false, alt:['co-ab','co-db']},
+  'co-ab':    {n:'Ab Wheel Rollout',      mg:'Core',      eq:'Bodyweight',compound:false, alt:['co-plank','co-db']},
+  'co-db':    {n:'Dead Bug',              mg:'Core',      eq:'Bodyweight',compound:false, alt:['co-plank','co-ab']},
+};
+
+// Muscle group → exercises ordered compound-first, then accessories
+// Compound pool order is intentional: first entry is the default compound for that group.
+// Back: row-type first so Upper-body days don't default to deadlifts.
+// Posterior: deadlift first since it IS the primary posterior compound.
+const MG_EX = {
+  'Chest':     {comp:['bb-bench','bb-inc','bw-dip','ares-cp','halo-ip'],  acc:['db-flat','db-inc','halo-fly','cb-fly','db-fly']},
+  'Back':      {comp:['bb-row','bw-pullup','ares-row','halo-row','bb-trap','bb-dl'], acc:['cb-pd2','db-row','cb-row','halo-po','cb-po','cb-fp']},
+  'Legs':      {comp:['bb-sq','ares-hack','ares-lp','bb-fsq'],            acc:['db-gob','db-lunge','ares-ext']},
+  'Posterior': {comp:['bb-dl','bb-rdl','bb-trap'],                        acc:['ares-curl','db-rdl','bb-gm']},
+  'Shoulders': {comp:['bb-ohp','ares-sp','halo-sp'],                      acc:['db-ohp','db-lat','halo-lat','cb-lat','db-front','cb-fp']},
+  'Biceps':    {comp:['bb-curl'],                                          acc:['db-curl','db-ham','halo-bc','cb-curl']},
+  'Triceps':   {comp:['bb-skull','bw-dip'],                               acc:['db-tex','halo-te','cb-pd']},
+  'Core':      {comp:['cb-pal'],                                           acc:['co-plank','co-ab','co-db']},
+};
+
+// =====================================================================
+// TRAINING MODES
+// =====================================================================
+const MODES = {
+  strength:    {n:'Strength',    c:'#e24b4a', sets:5, reps:[2,5],   rest:240, desc:'2–5 reps · 85–95% · 4 min rest',  exCount:4},
+  hypertrophy: {n:'Hypertrophy', c:'#1d9e75', sets:4, reps:[8,12],  rest:75,  desc:'8–12 reps · 65–80% · 75s rest',   exCount:6},
+  endurance:   {n:'Endurance',   c:'#378add', sets:3, reps:[12,20], rest:45,  desc:'12–20 reps · 50–65% · 45s rest',  exCount:7},
+};
+
+// Rep ceiling triggers auto-progression (+5lbs next session)
+// Strength: 5 reps, Hypertrophy: 10 reps, Endurance: 20 reps
+const PROG_THRESHOLDS = {strength:5, hypertrophy:10, endurance:20};
+
+// =====================================================================
+// EVIDENCE-BASED SPLITS
+// Each day has: label, primary muscle groups, optional secondary
+// =====================================================================
+const SPLITS = {
+  'full-body-2': {
+    name:'Full Body 2×/week', days:2, icon:'⊞',
+    evidence:'Minimum effective dose for each muscle group. Ideal for maintenance phases or busy schedules. Both sessions train the full body with A/B variation to distribute stress.',
+    ref:'Schoenfeld et al. 2016 (Strength & Cond. J.); Ralston et al. 2017 (JSCR)',
+    freq:'2×/week per muscle', level:'Beginner · Maintenance',
+    tags:['2×/week each muscle','Time-efficient','Compound-focused'],
+    schedule:[
+      {label:'Full Body A', pri:['Chest','Back','Legs'],          sec:['Shoulders','Biceps','Triceps']},
+      {label:'Full Body B', pri:['Legs','Posterior','Shoulders'], sec:['Chest','Back','Core']},
+    ]
+  },
+  'full-body-3': {
+    name:'Full Body 3×/week', days:3, icon:'⊟',
+    evidence:'Strongest evidence for raw strength development. High stimulus frequency (3×/week per muscle) maximises MPS signalling. Compound-movement focused — the Starting Strength and GZCLP model.',
+    ref:'Rippetoe & Kilgore 2011; Colquhoun et al. 2018 (J. Strength Cond.)',
+    freq:'3×/week per muscle', level:'Beginner–Intermediate · Strength',
+    tags:['3×/week each muscle','Strength-optimal','Compound-first'],
+    schedule:[
+      {label:'Day A', pri:['Chest','Back','Legs'],          sec:['Shoulders']},
+      {label:'Day B', pri:['Legs','Posterior','Shoulders'], sec:['Chest','Back']},
+      {label:'Day C', pri:['Chest','Back','Legs'],          sec:['Biceps','Triceps']},
+    ]
+  },
+  'upper-lower-4': {
+    name:'Upper / Lower 4×/week', days:4, icon:'⊠',
+    evidence:'Gold standard for intermediate hypertrophy. Trains each muscle group twice per week with sufficient inter-session recovery (~48 hrs). Allows higher per-session volume than full-body. Best supported split for hypertrophy in the literature.',
+    ref:'Lyle McDonald (2006); Schoenfeld 2016 meta-analysis; Krieger 2010',
+    freq:'2×/week per muscle', level:'Intermediate · Hypertrophy',
+    tags:['2×/week each muscle','Hypertrophy-optimal','Balanced recovery'],
+    schedule:[
+      {label:'Upper A (Strength bias)', pri:['Chest','Back'],             sec:['Shoulders']},
+      {label:'Lower A (Strength bias)', pri:['Legs','Posterior'],         sec:['Core']},
+      {label:'Upper B (Hypertrophy bias)',pri:['Chest','Back','Shoulders'],sec:['Biceps','Triceps']},
+      {label:'Lower B (Hypertrophy bias)',pri:['Legs','Posterior'],        sec:['Core','Biceps']},
+    ]
+  },
+  'ppl-3': {
+    name:'Push / Pull / Legs', days:3, icon:'◈',
+    evidence:'Classic bodybuilding split. Each muscle trained ~1×/week. Adequate volume per session but lower frequency than upper/lower. Evidence suggests 2×/week superior for hypertrophy — consider PPL×2 for that benefit.',
+    ref:'Schoenfeld et al. 2016 (1× vs 2×/week meta-analysis)',
+    freq:'1×/week per muscle', level:'Intermediate · Classic',
+    tags:['1×/week each muscle','High volume/session','Classic split'],
+    schedule:[
+      {label:'Push', pri:['Chest','Shoulders'], sec:['Triceps']},
+      {label:'Pull', pri:['Back'],              sec:['Biceps','Posterior']},
+      {label:'Legs', pri:['Legs','Posterior'],  sec:['Core']},
+    ]
+  },
+  'ppl-6': {
+    name:'PPL 6×/week (RP-Style)', days:6, icon:'⬡',
+    evidence:'Renaissance Periodization model (Israetel). PPL repeated twice delivers 2×/week per muscle with high volume per session. Best for advanced lifters who can tolerate and recover from high training volume (MEV → MAV range).',
+    ref:'Israetel, Hoffmann & Case 2019 (RP Hypertrophy); Colquhoun 2018',
+    freq:'2×/week per muscle', level:'Advanced · High volume',
+    tags:['2×/week each muscle','High volume','Advanced only'],
+    schedule:[
+      {label:'Push A', pri:['Chest','Shoulders'], sec:['Triceps']},
+      {label:'Pull A', pri:['Back'],              sec:['Biceps','Posterior']},
+      {label:'Legs A', pri:['Legs','Posterior'],  sec:['Core']},
+      {label:'Push B', pri:['Chest','Shoulders'], sec:['Triceps']},
+      {label:'Pull B', pri:['Back'],              sec:['Biceps']},
+      {label:'Legs B', pri:['Legs','Posterior'],  sec:['Core']},
+    ]
+  },
+  'ul-5': {
+    name:'UL + Push/Pull/Legs (5-Day)', days:5, icon:'◎',
+    evidence:'Hybrid approach combining upper/lower frequency advantages with dedicated isolation days. Muscles hit 1.5–2×/week. Good balance for intermediate-to-advanced lifters seeking both strength and hypertrophy without 6-day commitment.',
+    ref:'Hybrid of Lyle McDonald UL & PPL principles; Schoenfeld 2016',
+    freq:'1.5–2×/week per muscle', level:'Intermediate–Advanced',
+    tags:['Flexible frequency','Hybrid model','5-day'],
+    schedule:[
+      {label:'Upper A',  pri:['Chest','Back'],              sec:['Shoulders']},
+      {label:'Lower A',  pri:['Legs','Posterior'],          sec:['Core']},
+      {label:'Push',     pri:['Chest','Shoulders'],         sec:['Triceps']},
+      {label:'Pull',     pri:['Back'],                      sec:['Biceps','Posterior']},
+      {label:'Lower B',  pri:['Legs','Posterior'],          sec:['Core','Biceps']},
+    ]
+  },
+};
+
+// =====================================================================
+// GENERATE EXERCISES FOR A DAY
+// Compound movements first, then accessories. Count varies by mode.
+// =====================================================================
+function generateDayExercises(priMuscles, secMuscles, mode) {
+  const m = MODES[mode];
+  const totalTarget = m.exCount; // Strength:4, Hyp:6, End:7
+  const used = new Set();
+  const result = [];
+
+  // STEP 1: One compound per primary muscle (ALWAYS FIRST in list)
+  for (const mg of priMuscles) {
+    if (result.length >= totalTarget) break;
+    const pool = MG_EX[mg];
+    if (!pool) continue;
+    const comp = pool.comp.find(id => !used.has(id) && EX[id]);
+    if (comp) { result.push(comp); used.add(comp); }
+  }
+
+  // STEP 2: Accessories for primary muscles up to primary quota
+  // Reserve at least one slot per secondary muscle
+  const priQuota = totalTarget - Math.min(secMuscles.length, Math.floor(totalTarget * 0.35));
+  for (const mg of priMuscles) {
+    if (result.length >= priQuota) break;
+    const pool = MG_EX[mg];
+    if (!pool) continue;
+    for (const acc of (pool.acc || [])) {
+      if (result.length >= priQuota) break;
+      if (!used.has(acc) && EX[acc]) { result.push(acc); used.add(acc); }
+    }
+  }
+
+  // STEP 3: Secondary muscles — compound if available, else accessory
+  for (const mg of secMuscles) {
+    if (result.length >= totalTarget) break;
+    const pool = MG_EX[mg];
+    if (!pool) continue;
+    const best = [...(pool.comp || []), ...(pool.acc || [])].find(id => !used.has(id) && EX[id]);
+    if (best) { result.push(best); used.add(best); }
+  }
+
+  return result;
+}
+
+// =====================================================================
+// STATE
+// =====================================================================
+let S = {
+  screen:'home',
+  mode:'hypertrophy',
+  activeDayIdx:0,
+  workout:null,
+  histIdx:null,
+  swapIdx:null,
+  swapCtx:'workout',   // 'workout' | 'program' | 'builder'
+  swapEqFilter:'All',
+  swapDayIdx:0,        // used for 'builder' context: which preview day
+  bCollapsed:new Set(), // collapsed day indices in builder preview
+  progEx:'bb-bench',
+  wStep:5,           // weight picker increment: 2.5 or 5
+  progMgFilter:'All', // muscle group filter on progress screen
+  // Builder state
+  bStep:1,
+  bGoal:'hypertrophy',
+  bDays:4,
+  bSplit:'upper-lower-4',
+  bPreview:null,
+};
+
+// =====================================================================
+// STORAGE
+// =====================================================================
+const LS = {
+  get:(k)=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+};
+function getHistory(){return LS.get('lift_hist')||[]}
+function saveHistory(h){LS.set('lift_hist',h)}
+function getWeights(){return LS.get('lift_wts')||{}}
+function saveWeight(id,w){const wts=getWeights();wts[id]=w;LS.set('lift_wts',wts)}
+function getPrefs(){return LS.get('lift_pref')||{}}
+function savePrefs(p){LS.set('lift_pref',{...getPrefs(),...p})}
+
+// Persist in-progress workout so tab close / reload doesn't lose it
+function saveWorkoutState(){
+  if(S.workout){LS.set('lift_wip',{...S.workout,_wStart:wStart});}
+  else{LS.set('lift_wip',null);}
+}
+function loadWorkoutState(){
+  const w=LS.get('lift_wip');
+  if(!w)return;
+  const{_wStart,...rest}=w;
+  S.workout=rest;
+  wStart=_wStart||Date.now();
+}
+
+// Active program: array of {id, label, exIds, mode}
+function getActiveProgram(){return LS.get('lift_prog')||null}
+function saveActiveProgram(prog){LS.set('lift_prog',prog)}
+
+// ---- Export / Import backup ----
+const BACKUP_KEYS=['lift_hist','lift_wts','lift_custom','lift_sugg','lift_exertion','lift_prog','lift_pref'];
+
+function exportBackup(){
+  const data={v:1,ts:Date.now()};
+  BACKUP_KEYS.forEach(k=>{const v=LS.get(k);if(v!==null)data[k]=v;});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const d=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`lift-backup-${d}.json`;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+}
+
+function importBackup(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json,application/json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(!data.v){alert('Unrecognised backup file.');return;}
+        BACKUP_KEYS.forEach(k=>{if(data[k]!==undefined)LS.set(k,data[k]);});
+        alert('Backup restored. Reloading…');
+        location.reload();
+      }catch{alert('Could not read backup file.');}
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(inp);inp.click();inp.remove();
+}
+
+// Per-day custom overrides (swaps within a program day)
+function getCustoms(){return LS.get('lift_custom')||{}}
+function getDayProgram(dayId){
+  const c=getCustoms();const ap=getActiveProgram();
+  if(!ap)return[];
+  const day=ap.find(d=>d.id===dayId);
+  if(!day)return[];
+  return c[dayId]||day.exIds;
+}
+function setDayCustom(dayId,exIds){
+  const c=getCustoms();c[dayId]=exIds;LS.set('lift_custom',c);
+}
+function isDayCustomized(dayId){
+  const c=getCustoms();const ap=getActiveProgram();
+  if(!ap||!c[dayId])return false;
+  const day=ap.find(d=>d.id===dayId);
+  if(!day)return false;
+  return JSON.stringify(c[dayId])!==JSON.stringify(day.exIds);
+}
+function resetDayCustom(dayId){
+  const c=getCustoms();delete c[dayId];LS.set('lift_custom',c);
+}
+
+// Exertion log
+function getExertionLog(){return LS.get('lift_exertion')||{}}
+function saveExertion(exId,rating,weight){
+  const log=getExertionLog();
+  if(!log[exId])log[exId]=[];
+  log[exId].unshift({date:Date.now(),rating,weight});
+  log[exId]=log[exId].slice(0,10);
+  LS.set('lift_exertion',log);
+  const sugg=getWeightSuggestions();
+  if(rating<=4){
+    // Only suggest if auto-progression didn't already advance the weight for this exercise
+    const savedW=getWeights()[exId]||0;
+    if(savedW<=weight){
+      // Weight hasn't been auto-progressed — low RPE suggestion is still useful
+      const inc=weight>=100?5:2.5;
+      sugg[exId]={suggestedWeight:+(weight+inc).toFixed(1),prevWeight:weight,rating,inc};
+      LS.set('lift_sugg',sugg);
+    }
+    // else: auto-progression already committed a higher weight; skip suggestion
+  }else{
+    delete sugg[exId];LS.set('lift_sugg',sugg);
+  }
+}
+function getWeightSuggestions(){return LS.get('lift_sugg')||{}}
+
+// Last session's logged sets for a given exercise — used as in-workout reference
+function getLastSessionSets(exId){
+  const h=getHistory();
+  for(const w of h){
+    const ei=w.exIds.indexOf(exId);
+    if(ei===-1)continue;
+    const done=w.sets[ei].filter(s=>s.done);
+    if(done.length)return{date:w.date,sets:done};
+  }
+  return null;
+}
+
+// Auto-progression: if the final completed set hits the rep ceiling for this mode,
+// commit +5lbs directly to the saved weight so the next workout defaults to it.
+// Returns {exId, exName, from, to} if progression fired, else null.
+function checkAutoProgression(exId, sets, mode){
+  const done=sets.filter(s=>s.done);
+  if(!done.length)return null;
+  // Require at least N-1 sets completed — partial exercises don't earn progression
+  const minSets=Math.max(1,sets.length-1);
+  if(done.length<minSets)return null;
+  const finalSet=done[done.length-1];
+  const threshold=PROG_THRESHOLDS[mode];
+  if(threshold===undefined||finalSet.reps<threshold)return null;
+  const newW=+(finalSet.w+5).toFixed(1);
+  saveWeight(exId,newW);
+  const sugg=getWeightSuggestions();
+  delete sugg[exId];
+  LS.set('lift_sugg',sugg);
+  return{exId,exName:EX[exId]?.n||exId,from:finalSet.w,to:newW,reps:finalSet.reps,mode};
+}
+function dismissSuggestion(exId){
+  const s=getWeightSuggestions();delete s[exId];LS.set('lift_sugg',s);render();
+}
+function applySuggestion(exId){
+  const s=getWeightSuggestions()[exId];
+  if(!s||!S.workout)return;
+  const ei=S.workout.exIds.indexOf(exId);
+  if(ei===-1)return;
+  S.workout.sets[ei].forEach(st=>{if(!st.done)st.w=s.suggestedWeight;});
+  dismissSuggestion(exId);
+}
+
+// =====================================================================
+// TIMER
+// =====================================================================
+let timer={active:false,rem:0,total:0,iv:null};
+let elapsedIv=null,wStart=null;
+
+function startTimer(sec){
+  clearInterval(timer.iv);
+  timer={active:true,rem:sec,total:sec,iv:null};
+  timer.iv=setInterval(()=>{
+    timer.rem--;
+    if(timer.rem<=0){
+      clearInterval(timer.iv);timer.active=false;
+      vibrate([100,50,100]);
+      S.screen='active';render();
+    }else{updateTimerDisplay();}
+  },1000);
+  S.screen='timer';render();
+}
+function skipTimer(){clearInterval(timer.iv);timer.active=false;S.screen='active';render();}
+function adjTimer(d){
+  timer.rem=Math.max(5,timer.rem+d);
+  timer.total=Math.max(timer.total,timer.rem);
+  updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  const c=document.getElementById('t-count');
+  const f=document.getElementById('t-fill');
+  if(!c)return;
+  c.textContent=fmtTime(timer.rem);
+  if(f){const R=90,circ=2*Math.PI*R;const pct=timer.rem/timer.total;f.style.strokeDashoffset=circ*(1-pct);}
+}
+function fmtTime(s){const m=Math.floor(s/60),r=s%60;return m>0?`${m}:${String(r).padStart(2,'0')}`:String(s);}
+function fmtElapsed(){if(!wStart)return'0:00';const s=Math.floor((Date.now()-wStart)/1000);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function vibrate(p){try{navigator.vibrate&&navigator.vibrate(p);}catch{}}
+
+// =====================================================================
+// WORKOUT LOGIC
+// =====================================================================
+function startWorkout(dayIdx){
+  const ap=getActiveProgram();
+  if(!ap){S.screen='builder';render();return;}
+  const day=ap[dayIdx];
+  const exIds=getDayProgram(day.id);
+  const mode=day.mode||S.mode;
+  const wts=getWeights();
+  const m=MODES[mode];
+  S.workout={
+    day:day.id,dayLabel:day.label,mode,
+    startTime:Date.now(),
+    exIds:[...exIds],
+    sets:exIds.map(id=>Array.from({length:m.sets},()=>({w:wts[id]||0,reps:m.reps[1],rpe:null,done:false}))),
+    ei:0,si:0,
+    progressions:[]   // collects auto-progression events during this workout
+  };
+  wStart=Date.now();
+  saveWorkoutState();
+  clearInterval(elapsedIv);
+  elapsedIv=setInterval(()=>{const e=document.getElementById('w-elapsed');if(e)e.textContent=fmtElapsed();},1000);
+  document.getElementById('nb-active').style.display='';
+  S.screen='active';render();
+}
+
+function curSet(){if(!S.workout)return null;return S.workout.sets[S.workout.ei][S.workout.si];}
+
+function logSet(){
+  const cs=curSet();if(!cs)return;
+  cs.done=true;
+  saveWeight(S.workout.exIds[S.workout.ei],cs.w);
+  const{sets,ei,si}=S.workout;
+  const isLastSet=si>=sets[ei].length-1;
+  if(!isLastSet){
+    S.workout.si++;
+    saveWorkoutState();
+    vibrate(30);
+    startTimer(MODES[S.workout.mode].rest);
+  }else{
+    // Final set of this exercise — skip rest timer, stay on active screen
+    saveWorkoutState();
+    vibrate(30);
+    render();
+  }
+}
+
+function finishWorkout(){
+  clearInterval(elapsedIv);
+  const h=getHistory();const w=S.workout;
+  const summary={date:Date.now(),day:w.day,dayLabel:w.dayLabel,mode:w.mode,
+    dur:Math.round((Date.now()-w.startTime)/60000),exIds:w.exIds,sets:w.sets,
+    progressions:w.progressions||[]};
+  h.unshift(summary);
+  saveHistory(h);
+  S.workout=null;
+  LS.set('lift_wip',null);
+  document.getElementById('nb-active').style.display='none';
+  showCompletionModal(summary);
+}
+
+function showGymBroModal(incompleteSets, thenFn){
+  const existing=document.getElementById('gymbro-modal');
+  if(existing)existing.remove();
+  const div=document.createElement('div');
+  div.id='gymbro-modal';
+  div.className='modal-bg';
+  div.style.background='rgba(0,0,0,.85)';
+  div.innerHTML=`
+<div class="modal" onclick="event.stopPropagation()"
+  style="padding:28px 20px;padding-bottom:calc(28px + env(safe-area-inset-bottom));text-align:center">
+  <div style="font-size:52px;margin-bottom:10px">💪</div>
+  <div style="font-size:14px;font-weight:600;color:var(--txt3);letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:8px">Gym Bro says:</div>
+  <div style="font-size:22px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px;
+    color:var(--txt);line-height:1.2">Don't be a little bitch</div>
+  <div style="font-size:13px;color:var(--txt2);margin-bottom:28px;line-height:1.5">
+    You still have <strong style="color:var(--red)">${incompleteSets} set${incompleteSets>1?'s':''}</strong> left.
+  </div>
+  <button onclick="document.getElementById('gymbro-modal').remove();resumeTimer();"
+    class="btn btn-p btn-xl" style="margin-bottom:10px">
+    💪  Finish the sets
+  </button>
+  <button id="gymbro-skip-btn"
+    style="width:100%;background:none;border:none;color:var(--txt3);font-size:13px;
+    cursor:pointer;padding:10px;text-decoration:underline">
+    Skip remaining sets anyway
+  </button>
+</div>`;
+  document.body.appendChild(div);
+  document.getElementById('gymbro-skip-btn').addEventListener('click',()=>{
+    div.remove();
+    thenFn();
+  });
+}
+
+function resumeTimer(){
+  // If there was an active timer, restore it; otherwise go back to active screen
+  if(timer.active){S.screen='timer';render();}
+  else{S.screen='active';render();}
+}
+
+function _doEndExercise(){
+  const w=S.workout;
+  const exId=w.exIds[w.ei];
+  const done=w.sets[w.ei].filter(s=>s.done);
+  // Use the max weight logged across all sets — not last set (which may be a back-off)
+  const maxW=done.length>0?Math.max(...done.map(s=>s.w)):0;
+  if(done.length>0)saveWeight(exId,maxW);
+  const prog=checkAutoProgression(exId,w.sets[w.ei],w.mode);
+  if(prog)w.progressions.push(prog);
+  showExertionModal(exId,EX[exId]?.n||exId,maxW,prog,()=>{
+    if(w.ei<w.exIds.length-1){w.ei++;w.si=0;S.screen='active';render();}
+    else finishWorkout();
+  });
+}
+
+function _doEndWorkout(){
+  const w=S.workout;
+  const exId=w.exIds[w.ei];
+  const done=w.sets[w.ei].filter(s=>s.done);
+  const maxW=done.length>0?Math.max(...done.map(s=>s.w)):0;
+  if(done.length>0)saveWeight(exId,maxW);
+  const prog=checkAutoProgression(exId,w.sets[w.ei],w.mode);
+  if(prog)w.progressions.push(prog);
+  showExertionModal(exId,EX[exId]?.n||exId,maxW,prog,()=>finishWorkout());
+}
+
+function endExercise(){
+  if(!S.workout)return;
+  clearInterval(timer.iv);timer.active=false;
+  const w=S.workout;
+  const incomplete=w.sets[w.ei].filter(s=>!s.done).length;
+  if(incomplete>0){
+    showGymBroModal(incomplete,()=>_doEndExercise());
+  }else{
+    _doEndExercise();
+  }
+}
+
+function endWorkout(){
+  clearInterval(timer.iv);timer.active=false;
+  const w=S.workout;if(!w)return;
+  const incomplete=w.sets[w.ei].filter(s=>!s.done).length;
+  if(incomplete>0){
+    showGymBroModal(incomplete,()=>_doEndWorkout());
+  }else{
+    _doEndWorkout();
+  }
+}
+
+function swapExercise(altId){
+  if(S.swapIdx===null)return;
+  const idx=S.swapIdx;
+  S.workout.exIds[idx]=altId;
+  const wts=getWeights();const m=MODES[S.workout.mode];
+  S.workout.sets[idx]=Array.from({length:m.sets},()=>({w:wts[altId]||0,reps:m.reps[1],rpe:null,done:false}));
+  if(idx===S.workout.ei)S.workout.si=0;
+  setDayCustom(S.workout.day,[...S.workout.exIds]);
+  saveWorkoutState();
+  S.swapIdx=null;S.screen='active';render();
+}
+function swapProgramEx(newId){
+  if(S.swapIdx===null)return;
+  const ap=getActiveProgram();
+  const day=ap[S.activeDayIdx];
+  const exIds=getDayProgram(day.id);
+  exIds[S.swapIdx]=newId;
+  setDayCustom(day.id,exIds);
+  S.swapIdx=null;S.screen='home';render();
+}
+
+function openBuilderSwap(di,ei){
+  S.swapDayIdx=di;S.swapIdx=ei;S.swapCtx='builder';S.swapEqFilter='All';
+  S.screen='swap';render();
+}
+function swapBuilderEx(newId){
+  if(!S.bPreview||S.swapIdx===null)return;
+  S.bPreview[S.swapDayIdx].exIds[S.swapIdx]=newId;
+  S.swapIdx=null;S.screen='builder';render();
+}
+function addAccessory(exId){
+  if(!S.workout)return;
+  S.workout.exIds.push(exId);
+  const wts=getWeights();const m=MODES[S.workout.mode];
+  S.workout.sets.push(Array.from({length:m.sets},()=>({w:wts[exId]||0,reps:m.reps[1],rpe:null,done:false})));
+  setDayCustom(S.workout.day,[...S.workout.exIds]);
+  saveWorkoutState();
+  S.screen='active';render();
+}
+function jumpTo(i){
+  if(!S.workout)return;
+  S.workout.ei=i;
+  const firstUndone=S.workout.sets[i].findIndex(s=>!s.done);
+  S.workout.si=firstUndone>=0?firstUndone:S.workout.sets[i].length-1;
+  saveWorkoutState();
+  render();
+}
+
+// =====================================================================
+// EXERTION MODAL
+// =====================================================================
+function showExertionModal(exId,exName,weight,progEvent,thenFn){
+  removeExertionModal();
+  const div=document.createElement('div');
+  div.id='exertion-modal';div.className='modal-bg';
+  const colors={1:'#1d9e75',2:'#1d9e75',3:'#1d9e75',4:'#1d9e75',5:'#ef9f27',6:'#ef9f27',7:'#ef9f27',8:'#e24b4a',9:'#e24b4a',10:'#e24b4a'};
+  div.innerHTML=`
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div style="text-align:center;margin-bottom:4px">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:6px">Exercise Complete</div>
+    <div style="font-size:18px;font-weight:700">${exName}</div>
+    ${weight>0?`<div style="font-size:13px;color:var(--txt2);margin-top:4px">${weight} lbs</div>`:''}
+  </div>
+  ${progEvent?`
+  <div style="background:#1d9e7514;border:1px solid #1d9e7535;border-radius:10px;
+    padding:10px 14px;margin:12px 0;display:flex;align-items:center;gap:10px">
+    <div style="font-size:20px">📈</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#1d9e75">Weight progressed!</div>
+      <div style="font-size:12px;color:var(--txt2);margin-top:2px">
+        Next session defaults to <strong style="color:var(--txt)">${progEvent.to} lbs</strong>
+        <span style="color:var(--txt3)">(+5 from ${progEvent.from})</span>
+      </div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:2px">
+        Hit ${progEvent.reps} reps — top of ${MODES[progEvent.mode]?.n||progEvent.mode} range
+      </div>
+    </div>
+  </div>`:''}
+  <div style="font-size:13px;color:var(--txt2);text-align:center;margin:${progEvent?'10px':'16px'} 0 10px">Rate overall exertion</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:6px;text-align:center">
+    <div style="font-size:10px;font-weight:600;color:#1d9e75;letter-spacing:.05em">EASY</div>
+    <div style="font-size:10px;font-weight:600;color:#ef9f27;letter-spacing:.05em">MODERATE</div>
+    <div style="font-size:10px;font-weight:600;color:#e24b4a;letter-spacing:.05em">HARD</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px">
+    ${[1,2,3,4,5,6,7,8,9,10].map(r=>`
+      <button onclick="selectExertion(${r},'${exId}',${weight})"
+        style="height:54px;border-radius:10px;border:2px solid ${colors[r]}66;
+               background:${colors[r]}28;color:${colors[r]};font-size:20px;font-weight:700;
+               cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center"
+        ontouchstart="this.style.transform='scale(0.92)'" ontouchend="this.style.transform=''">
+        ${r}
+      </button>`).join('')}
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);padding:0 4px;margin-bottom:20px">
+    <span>← Very easy</span><span>Max effort →</span>
+  </div>
+  <button onclick="selectExertion(null,'${exId}',${weight})"
+    style="width:100%;background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:8px;text-decoration:underline">
+    Skip rating
+  </button>
+</div>`;
+  document.body.appendChild(div);
+  window._exertionThen=thenFn;
+}
+function removeExertionModal(){const m=document.getElementById('exertion-modal');if(m)m.remove();}
+function selectExertion(rating,exId,weight){
+  if(rating!==null)saveExertion(exId,rating,weight);
+  removeExertionModal();
+  if(window._exertionThen)window._exertionThen(rating);
+}
+
+// =====================================================================
+// WORKOUT COMPLETION MODAL
+// =====================================================================
+function showCompletionModal(summary){
+  const dur=summary.dur||0;
+  const totalSets=summary.sets.reduce((a,s)=>a+s.filter(x=>x.done).length,0);
+  const totalVol=summary.sets.reduce((a,s)=>a+s.filter(x=>x.done).reduce((b,x)=>b+x.w*x.reps,0),0);
+  const topEx=summary.exIds.map((id,i)=>{
+    const vol=summary.sets[i].filter(s=>s.done).reduce((a,s)=>a+s.w*s.reps,0);
+    return{id,vol,best:Math.max(0,...summary.sets[i].filter(s=>s.done).map(s=>s.w))};
+  }).sort((a,b)=>b.vol-a.vol).slice(0,3);
+  const modeC=MODES[summary.mode]?.c||'#1d9e75';
+  const div=document.createElement('div');
+  div.id='completion-modal';
+  div.className='modal-bg';
+  div.style.background='rgba(0,0,0,.88)';
+  div.innerHTML=`
+<div class="modal" onclick="event.stopPropagation()"
+  style="padding-top:28px;padding-bottom:calc(32px + env(safe-area-inset-bottom))">
+  <div style="text-align:center;margin-bottom:22px">
+    <div style="font-size:42px;margin-bottom:10px">🏋️</div>
+    <div style="font-size:22px;font-weight:800;letter-spacing:-.3px">Workout Complete</div>
+    <div style="font-size:13px;color:var(--txt2);margin-top:6px">${summary.dayLabel}</div>
+  </div>
+  <!-- Key stats -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px">
+    <div style="background:var(--bg2);border-radius:12px;padding:14px 8px;text-align:center">
+      <div style="font-size:26px;font-weight:700;color:${modeC}">${dur}</div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:3px">minutes</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:12px;padding:14px 8px;text-align:center">
+      <div style="font-size:26px;font-weight:700;color:${modeC}">${totalSets}</div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:3px">sets logged</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:12px;padding:14px 8px;text-align:center">
+      <div style="font-size:26px;font-weight:700;color:${modeC}">${(totalVol/1000).toFixed(1)}k</div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:3px">lbs volume</div>
+    </div>
+  </div>
+  <!-- Top exercises by volume -->
+  ${topEx.length?`
+  <div style="margin-bottom:22px">
+    <div class="sec-label" style="margin-bottom:10px">Top exercises</div>
+    ${topEx.map(e=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;
+        padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--txt)">${EX[e.id]?.n||e.id}</span>
+        <span style="color:var(--txt2)">${e.vol.toLocaleString()} lbs vol</span>
+      </div>`).join('')}
+  </div>`:''}
+  <!-- Auto-progression events -->
+  ${(summary.progressions||[]).length?`
+  <div style="background:#1d9e7514;border:1px solid #1d9e7535;border-radius:12px;padding:14px;margin-bottom:22px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:18px">📈</span>
+      <div style="font-size:13px;font-weight:700;color:#1d9e75">
+        ${summary.progressions.length} exercise${summary.progressions.length>1?'s':''} progressed
+      </div>
+    </div>
+    ${summary.progressions.map(p=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;
+        padding:7px 0;border-bottom:1px solid #1d9e7525;font-size:12px">
+        <span style="color:var(--txt);font-weight:500">${p.exName}</span>
+        <span style="color:#1d9e75;font-weight:700">${p.from} → ${p.to} lbs</span>
+      </div>`).join('')}
+    <div style="font-size:11px;color:var(--txt3);margin-top:8px">
+      Default weight updated for next session
+    </div>
+  </div>`:''}
+  <button onclick="removeCompletionModal();S.screen='history';render()"
+    class="btn btn-p btn-xl" style="margin-bottom:10px">View Log</button>
+  <button onclick="removeCompletionModal();S.screen='home';render()"
+    class="btn btn-s btn-xl">Back to Home</button>
+</div>`;
+  document.body.appendChild(div);
+}
+function removeCompletionModal(){
+  const m=document.getElementById('completion-modal');if(m)m.remove();
+}
+
+// Short display name for exercise chips and pills
+function shortName(id){
+  const n=EX[id]?.n||id;
+  return n
+    .replace(/^Barbell /,'BB ')
+    .replace(/^Dumbbell /,'DB ')
+    .replace(/^Cable /,'CB ')
+    .replace(/^Bodyweight\s?/,'')
+    .replace(/ \(Ares\)/,'')
+    .replace(/^Halo /,'')
+    .replace(/^Ares 2\.0 /,'')
+    .replace(/^DB One-Arm /,'DB ')
+    .split(' ').slice(0,3).join(' ');
+}
+
+// =====================================================================
+// RENDER ENGINE
+// =====================================================================
+function render(){
+  const ap=getActiveProgram();
+  const activeDayMode=(ap&&ap[S.activeDayIdx]?.mode)||S.mode;
+  document.documentElement.style.setProperty('--mode',MODES[activeDayMode]?.c||MODES[S.mode].c);
+  ['home','builder','active','history','progress'].forEach(id=>{
+    const el=document.getElementById('nb-'+id);
+    if(el)el.classList.toggle('on',
+      (id==='active'&&(S.screen==='active'||S.screen==='timer'))||
+      (id!=='active'&&S.screen===id));
+  });
+  const sc=document.getElementById('screen');
+  switch(S.screen){
+    case'home':      sc.innerHTML=rHome();break;
+    case'builder':   sc.innerHTML=rBuilder();break;
+    case'active':    sc.innerHTML=rActive();requestAnimationFrame(initPickers);break;
+    case'timer':     sc.innerHTML=rTimer();break;
+    case'history':   sc.innerHTML=rHistory();break;
+    case'histDetail':sc.innerHTML=rHistDetail();break;
+    case'progress':  sc.innerHTML=rProgress();initChart();break;
+    case'swap':      sc.innerHTML=rSwap();break;
+    case'addEx':     sc.innerHTML=rAddEx();break;
+  }
+  if(S.screen==='timer'){
+    const R=90,circ=2*Math.PI*R;
+    const f=document.getElementById('t-fill');
+    if(f){f.style.strokeDasharray=circ;f.style.strokeDashoffset=circ*(1-timer.rem/timer.total);}
+  }
+}
+
+// =====================================================================
+// HOME SCREEN
+// =====================================================================
+function rHome(){
+  const ap=getActiveProgram();
+  const m=MODES[S.mode];
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  if(!ap){
+    return`
+<div class="page-head"><div>
+  <div class="page-title">Lift</div>
+  <div class="page-sub">${today}</div>
+</div></div>
+<div style="padding:0 16px">
+  <div style="background:var(--bg1);border:1.5px dashed var(--border2);border-radius:14px;
+    padding:32px 24px;text-align:center;margin-bottom:16px">
+    <div style="font-size:32px;margin-bottom:12px">📋</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">No program set up yet</div>
+    <div style="font-size:13px;color:var(--txt2);margin-bottom:20px;line-height:1.5">
+      Build an evidence-based program in the Plan tab — select your goals, days per week, and split type.
+    </div>
+    <button class="btn btn-p btn-xl" onclick="navTo('builder')">Build My Program</button>
+  </div>
+</div>`;
+  }
+
+  const inW=!!S.workout;
+  const mode=ap[S.activeDayIdx]?.mode||S.mode;
+
+  return`
+<div class="page-head">
+  <div>
+    <div class="page-title">Lift</div>
+    <div class="page-sub">${today}</div>
+  </div>
+  <button class="mode-pill" onclick="showModeModal()">
+    <span class="mdot"></span>${MODES[mode].n}
+  </button>
+</div>
+<div style="padding:0 16px">
+  ${inW?`<div class="in-prog-banner" onclick="S.screen='active';render()">
+    <div>
+      <div style="font-size:12px;color:var(--mode);font-weight:600">Workout in progress</div>
+      <div style="font-size:12px;color:var(--txt2);margin-top:2px">${S.workout.dayLabel} · ${MODES[S.workout.mode].n}</div>
+    </div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mode)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  </div>`:''}
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div class="sec-label" style="margin-bottom:0">Select Day</div>
+    <button onclick="navTo('builder')" style="background:none;border:none;font-size:11px;
+      color:var(--txt3);cursor:pointer;text-decoration:underline">Edit program</button>
+  </div>
+
+  ${ap.map((day,i)=>`
+    <div class="day-card ${S.activeDayIdx===i?'sel':''}" onclick="S.activeDayIdx=${i};render()">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
+            ${day.label}
+            ${i===S.activeDayIdx&&getHistory()[0]?.day!==day.id?`<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--mode);color:#fff;letter-spacing:.06em">UP NEXT</span>`:''}
+          </div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:3px">${day.muscles||''}</div>
+        </div>
+        <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;
+          background:${MODES[day.mode||S.mode].c}22;color:${MODES[day.mode||S.mode].c}">
+          ${MODES[day.mode||S.mode].n}
+        </span>
+      </div>
+    </div>
+  `).join('')}
+
+  <!-- Today's exercises for selected day -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px">
+    <div class="sec-label" style="margin-bottom:0">${ap[S.activeDayIdx]?.label} — Exercises</div>
+    ${isDayCustomized(ap[S.activeDayIdx]?.id)?`
+      <button onclick="resetDayCustom('${ap[S.activeDayIdx].id}');render()"
+        style="background:none;border:none;font-size:11px;color:var(--txt3);cursor:pointer;text-decoration:underline">
+        Reset to default
+      </button>`:''}
+  </div>
+  <div class="card" style="padding:8px 16px;margin-bottom:16px">
+    ${getDayProgram(ap[S.activeDayIdx]?.id).map((id,i)=>{
+      const def=(getActiveProgram()||[])[S.activeDayIdx]?.exIds[i];
+      const isCustom=def&&id!==def;
+      const ex=EX[id];
+      return`<div class="ex-row">
+        <div style="flex:1">
+          <div class="ex-name">
+            ${isCustom?'<span class="custom-dot"></span>':''}${ex?.n||id}
+            ${ex?.compound?'<span class="compound-badge">compound</span>':''}
+          </div>
+          <div class="ex-meta">${ex?.eq||''} · ${ex?.mg||''}</div>
+        </div>
+        <button onclick="showExInfo('${id}')" style="background:none;border:1px solid var(--border);color:var(--txt3);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:6px">ⓘ</button>
+        <button class="ex-swap-btn" onclick="openProgramSwap(${i})">⇄</button>
+      </div>`;
+    }).join('')}
+  </div>
+
+  ${inW?`
+    <button class="btn btn-s btn-xl" onclick="startWorkout(${S.activeDayIdx})" style="margin-bottom:10px">New (overwrite current)</button>
+    <button class="btn btn-p btn-xl" onclick="S.screen='active';render()">Resume Workout</button>
+  `:`
+    <button class="btn btn-p btn-xl" onclick="startWorkout(${S.activeDayIdx})">
+      Start ${ap[S.activeDayIdx]?.label}
+    </button>
+  `}
+  <div style="font-size:12px;color:var(--txt3);text-align:center;margin-top:8px;margin-bottom:30px">
+    ${MODES[ap[S.activeDayIdx]?.mode||S.mode].desc}
+  </div>
+</div>`;
+}
+
+// =====================================================================
+// PROGRAM BUILDER
+// =====================================================================
+function rBuilder(){
+  const step=S.bStep;
+  return`
+<div class="page-head">
+  <div>
+    <div class="page-title">Plan</div>
+    <div class="page-sub">${['','Select Goal','Select Days','Choose Split','Preview'][step]}</div>
+  </div>
+  ${getActiveProgram()?`<button onclick="S.bStep=1;S.bPreview=null;navTo('home')" style="background:none;border:none;color:var(--txt2);font-size:13px;cursor:pointer">Cancel</button>`:''}
+</div>
+<div class="step-bar">
+  ${[1,2,3,4].map(n=>`<div class="step-dot ${n<=step?'done':''}"></div>`).join('')}
+</div>
+<div style="padding:0 16px 30px">
+  ${step===1?rBStep1():step===2?rBStep2():step===3?rBStep3():rBStep4()}
+</div>`;
+}
+
+function rBStep1(){
+  const goals=[
+    {k:'strength',   label:'Strength',    c:'#e24b4a', desc:'Maximise force output. Low rep, high load, long rest. 2–5 reps @ 85–95% 1RM.'},
+    {k:'hypertrophy',label:'Hypertrophy', c:'#1d9e75', desc:'Maximise muscle size. Moderate rep/load, metabolic stress. 8–12 reps @ 65–80%.'},
+    {k:'endurance',  label:'Endurance',   c:'#378add', desc:'Muscular endurance and conditioning. High rep, lower load. 12–20 reps @ 50–65%.'},
+  ];
+  return`
+<div class="sec-label">Training Goal</div>
+${goals.map(g=>`
+  <div class="split-card ${S.bGoal===g.k?'sel':''}" onclick="S.bGoal='${g.k}';render()">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${g.c};flex-shrink:0"></div>
+      <div class="sc-name" style="margin-bottom:0">${g.label}</div>
+      ${S.bGoal===g.k?`<svg style="margin-left:auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${g.c}" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+    </div>
+    <div style="font-size:13px;color:var(--txt2);line-height:1.5">${g.desc}</div>
+  </div>
+`).join('')}
+<button class="btn btn-p btn-xl" style="margin-top:20px" onclick="S.bStep=2;render()">
+  Continue →
+</button>`;
+}
+
+function rBStep2(){
+  return`
+<div class="sec-label">Days per week</div>
+<div class="days-grid" style="margin-bottom:24px">
+  ${[2,3,4,5,6].map(d=>`
+    <button class="day-btn ${S.bDays===d?'sel':''}" onclick="S.bDays=${d};autoSelectSplit();render()">${d}</button>
+  `).join('')}
+</div>
+<div class="sec-label">Research context</div>
+<div class="card" style="margin-bottom:24px">
+  <div style="font-size:13px;color:var(--txt2);line-height:1.6">
+    ${S.bDays<=2?'2 sessions/week is a maintenance-level stimulus. Each muscle group trained once per week at best. Adequate for active individuals with limited time but suboptimal for hypertrophy.':
+      S.bDays===3?'3 days/week supports either full-body (best for strength) or a PPL cycle. Full-body 3× produces excellent strength gains; PPL provides higher per-session volume per muscle.':
+      S.bDays===4?'4 days/week is the <strong style="color:var(--txt)">optimal evidence-based frequency</strong> for hypertrophy. Upper/Lower trains each muscle 2×/week with 48-hr recovery. Best-supported split in the literature (Schoenfeld 2016).':
+      S.bDays===5?'5 days/week allows hybrid approaches combining upper/lower frequency benefits with dedicated isolation sessions. Slightly more fatigue management required.':
+      '6 days/week enables PPL×2, giving high volume and 2×/week per muscle. Advanced lifters only — requires sufficient recovery capacity and progressive overload history.'}
+  </div>
+</div>
+<div style="display:flex;gap:10px">
+  <button class="btn btn-s" style="flex:1;height:48px" onclick="S.bStep=1;render()">← Back</button>
+  <button class="btn btn-p" style="flex:2;height:48px" onclick="S.bStep=3;render()">Continue →</button>
+</div>`;
+}
+
+function autoSelectSplit(){
+  const candidates=Object.entries(SPLITS).filter(([,s])=>s.days===S.bDays);
+  if(candidates.length>0)S.bSplit=candidates[0][0];
+}
+
+function rBStep3(){
+  const candidates=Object.entries(SPLITS).filter(([,s])=>s.days===S.bDays);
+  if(candidates.length===0)return`<div style="color:var(--txt2)">No splits for ${S.bDays} days.</div>`;
+  return`
+<div class="sec-label">Choose Split — ${S.bDays} days/week</div>
+${candidates.map(([k,sp])=>`
+  <div class="split-card ${S.bSplit===k?'sel':''}" onclick="S.bSplit='${k}';render()">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:20px">${sp.icon}</span>
+      <div class="sc-name" style="margin-bottom:0;flex:1">${sp.name}</div>
+      ${S.bSplit===k?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mode)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+    </div>
+    <div class="sc-tags">
+      <span class="sc-tag hi">${sp.freq}</span>
+      <span class="sc-tag">${sp.level}</span>
+      ${sp.tags.map(t=>`<span class="sc-tag">${t}</span>`).join('')}
+    </div>
+    <div style="font-size:12px;color:var(--txt2);line-height:1.5;margin-top:6px">${sp.evidence}</div>
+    <div style="font-size:10px;color:var(--txt3);margin-top:6px;font-style:italic">Ref: ${sp.ref}</div>
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px">
+      ${sp.schedule.map(d=>`<span style="font-size:11px;padding:3px 9px;border-radius:20px;
+        background:var(--bg2);color:var(--txt2);border:1px solid var(--border)">${d.label}</span>`).join('')}
+    </div>
+  </div>
+`).join('')}
+<div style="display:flex;gap:10px;margin-top:20px">
+  <button class="btn btn-s" style="flex:1;height:48px" onclick="S.bStep=2;render()">← Back</button>
+  <button class="btn btn-p" style="flex:2;height:48px" onclick="buildPreview();S.bStep=4;render()">Preview →</button>
+</div>`;
+}
+
+function buildPreview(){
+  const sp=SPLITS[S.bSplit];
+  S.bCollapsed=new Set(); // reset collapse state when preview is rebuilt
+  S.bPreview=sp.schedule.map((day,i)=>{
+    const exIds=generateDayExercises(day.pri,day.sec||[],S.bGoal);
+    const muscles=[...day.pri,...(day.sec||[])].join(', ');
+    return{id:`day-${S.bSplit}-${i}`,label:day.label,muscles,exIds,mode:S.bGoal,
+      pri:day.pri,sec:day.sec||[]};
+  });
+}
+
+function togglePreviewDay(di){
+  if(S.bCollapsed.has(di))S.bCollapsed.delete(di);
+  else S.bCollapsed.add(di);
+  render();
+}
+
+function rBStep4(){
+  if(!S.bPreview)buildPreview();
+  const sp=SPLITS[S.bSplit];
+  // Auto-collapse all but first day when 4+ days to reduce scroll
+  if(S.bCollapsed.size===0&&S.bPreview.length>=4){
+    S.bPreview.forEach((_,i)=>{if(i>0)S.bCollapsed.add(i);});
+  }
+  const allCollapsed=S.bCollapsed.size===S.bPreview.length;
+  return`
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+  <div class="sec-label" style="margin-bottom:0">${sp.name} — ${MODES[S.bGoal].n}</div>
+  <button onclick="${allCollapsed?'S.bCollapsed.clear()':'S.bPreview.forEach((_,i)=>S.bCollapsed.add(i))'};render()"
+    style="background:none;border:none;font-size:11px;color:var(--txt3);cursor:pointer;text-decoration:underline">
+    ${allCollapsed?'Expand all':'Collapse all'}
+  </button>
+</div>
+<div style="background:var(--bg2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--txt2);line-height:1.5">
+  <strong style="color:var(--txt)">${sp.freq}</strong> per muscle group · ${sp.level}
+  · Compounds first, then accessories.
+</div>
+
+${S.bPreview.map((day,di)=>{
+  const isCollapsed=S.bCollapsed.has(di);
+  const exCount=day.exIds.length;
+  const compCount=day.exIds.filter(id=>EX[id]?.compound).length;
+  return`
+  <div class="preview-day">
+    <div class="preview-day-header" onclick="togglePreviewDay(${di})">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="2.5"
+          style="flex-shrink:0;transform:rotate(${isCollapsed?'-90deg':'0deg'})">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <div style="min-width:0">
+          <div style="font-weight:700;font-size:14px">${day.label}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:2px">
+            ${exCount} exercises · ${compCount} compound · ${day.muscles}
+          </div>
+        </div>
+      </div>
+      <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-left:8px;
+        background:${MODES[S.bGoal].c}22;color:${MODES[S.bGoal].c}">${MODES[S.bGoal].n}</span>
+    </div>
+    ${isCollapsed?"":`
+    <div class="preview-day-body">
+      ${day.exIds.map((id,ei)=>{
+        const ex=EX[id];
+        return`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--border)">
+          <span style="color:var(--txt3);min-width:18px;font-size:11px;flex-shrink:0">${ei+1}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${ex?.n||id}${ex?.compound?'<span class="compound-badge">compound</span>':''}
+            </div>
+            <div style="font-size:11px;color:var(--txt3);margin-top:1px">${ex?.eq||""} · ${ex?.mg||""}</div>
+          </div>
+          <button onclick="showExInfo('${id}')"
+            style="background:none;border:1px solid var(--border);color:var(--txt3);
+            width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0">&#9432;</button>
+          <button onclick="openBuilderSwap(${di},${ei})"
+            style="background:none;border:1px solid var(--border2);color:var(--txt2);
+            font-size:11px;padding:4px 9px;border-radius:6px;cursor:pointer;
+            white-space:nowrap;flex-shrink:0">&#8644; Swap</button>
+        </div>`;
+      }).join("")}
+    </div>`}
+  </div>`;
+}).join("")}
+
+<div style="display:flex;gap:10px;margin-top:20px">
+  <button class="btn btn-s" style="flex:1;height:48px" onclick="S.bStep=3;render()">&#8592; Back</button>
+  <button class="btn btn-p" style="flex:2;height:48px" onclick="activateProgram()">
+    Activate Program
+  </button>
+</div>`;
+}
+function activateProgram(){
+  saveActiveProgram(S.bPreview);
+  S.mode=S.bGoal;
+  savePrefs({mode:S.bGoal});
+  S.bStep=1;S.bPreview=null;
+  S.activeDayIdx=0;
+  S.screen='home';render();
+}
+
+// =====================================================================
+// ACTIVE WORKOUT
+// =====================================================================
+function rActive(){
+  if(!S.workout){S.screen='home';return rHome();}
+  const w=S.workout;
+  const exId=w.exIds[w.ei];
+  const ex=EX[exId]||{n:exId,mg:'',eq:'',compound:false};
+  const sets=w.sets[w.ei];
+  const cs=sets[w.si];
+  const doneSets=sets.filter(s=>s.done).length;
+  const sugg=getWeightSuggestions()[exId];
+  const lastEx=(getExertionLog()[exId]||[])[0];
+  const lastSession=getLastSessionSets(exId);
+  const modeC=MODES[w.mode].c;
+
+  return`
+<div class="wh">
+  <div>
+    <div class="wh-title">${w.dayLabel}</div>
+    <div class="wh-sub">Exercise ${w.ei+1}/${w.exIds.length} · ${MODES[w.mode].n}</div>
+  </div>
+  <div id="w-elapsed" style="font-size:13px;color:var(--txt2);font-variant-numeric:tabular-nums">${fmtElapsed()}</div>
+</div>
+
+<div class="ex-scroll">
+  ${w.exIds.map((eid,i)=>{
+    const allDone=w.sets[i].every(s=>s.done);const isCur=i===w.ei;
+    return`<div class="ex-chip"
+      style="background:${allDone?modeC:isCur?'var(--bg2)':'var(--bg1)'};
+             border-color:${isCur||allDone?modeC:'var(--border)'};
+             color:${allDone?'#fff':isCur?'var(--txt)':'var(--txt3)'}"
+      onclick="jumpTo(${i})">
+      ${shortName(eid)}
+    </div>`;
+  }).join('')}
+</div>
+
+<div style="margin:0 16px 8px;background:var(--bg1);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+  <div style="padding:14px 16px;background:var(--bg2);display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <div style="font-size:17px;font-weight:700">
+        ${ex.n}${ex.compound?'<span class="compound-badge" style="vertical-align:middle;margin-left:8px">compound</span>':''}
+      </div>
+      <div style="font-size:12px;color:var(--txt2);margin-top:3px">
+        ${ex.eq} · Set ${w.si+1}/${sets.length} · Target ${MODES[w.mode].reps[0]}–${MODES[w.mode].reps[1]} reps
+      </div>
+    </div>
+    <button onclick="showExInfo('${exId}')" style="background:none;border:1px solid var(--border2);color:var(--txt3);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px">ⓘ</button>
+    <button class="ex-swap-btn" onclick="openSwap(${w.ei})">⇄ Swap</button>
+  </div>
+
+  <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+    <div class="set-dots">
+      ${sets.map((s,i)=>`<div class="sdot ${s.done?'done':i===w.si?'cur':''}"></div>`).join('')}
+    </div>
+    ${doneSets===sets.length
+      ? `<span style="font-size:12px;font-weight:600;color:var(--mode);margin-left:4px">✓ All sets done</span>`
+      : `<span style="font-size:12px;color:var(--txt3);margin-left:4px">${doneSets}/${sets.length} logged</span>`
+    }
+  </div>
+
+  ${lastSession?`
+  <!-- Previous session reference -->
+  <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3)">Last session</div>
+      <div style="font-size:10px;color:var(--txt3)">${new Date(lastSession.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+    </div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+      ${lastSession.sets.map((s,i)=>`
+        <div style="flex-shrink:0;background:var(--bg2);border:1px solid var(--border2);
+          border-radius:8px;padding:6px 10px;text-align:center;min-width:56px">
+          <div style="font-size:10px;color:var(--txt3);margin-bottom:2px">Set ${i+1}</div>
+          <div style="font-size:13px;font-weight:700">${s.w}</div>
+          <div style="font-size:10px;color:var(--txt2)">×${s.reps}</div>
+          ${s.rpe?`<div style="font-size:9px;color:var(--txt3);margin-top:1px">RPE ${s.rpe}</div>`:''}
+        </div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- Combined weight + reps drum pickers -->
+  <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+    ${sugg?`
+      <div id="sugg-banner" style="background:#1d9e7514;border:1px solid #1d9e7535;border-radius:9px;padding:10px 13px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:#1d9e75">Easy last session (effort ${sugg.rating}/10)</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:2px">Try <strong style="color:var(--txt)">${sugg.suggestedWeight} lbs</strong> <span style="color:var(--txt3)">(+${sugg.inc})</span></div>
+        </div>
+        <button onclick="applySuggestion('${exId}')" style="background:#1d9e75;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;padding:6px 11px;cursor:pointer">Apply</button>
+        <button onclick="dismissSuggestion('${exId}')" style="background:var(--bg3);color:var(--txt3);border:none;border-radius:7px;font-size:12px;padding:6px 9px;cursor:pointer">✕</button>
+      </div>`
+    :lastEx?`<div style="font-size:11px;color:var(--txt3);margin-bottom:10px">Last session: effort ${lastEx.rating}/10 at ${lastEx.weight} lbs</div>`:''}
+    <div style="display:flex;gap:12px">
+      <div style="flex:3">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="sec-label" style="margin-bottom:0">Weight</div>
+          <button id="wstep-btn" onclick="toggleWStep()"
+            style="background:var(--bg3);border:1px solid var(--border2);color:var(--txt2);
+            font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;cursor:pointer;letter-spacing:.04em">
+            ${S.wStep}lb steps
+          </button>
+        </div>
+        <div class="drum-wrap" style="height:132px">
+          <div class="drum-mask-top" style="height:44px"></div>
+          <div class="drum-sel-line" style="top:44px;height:44px"></div>
+          <div class="drum-mask-bot" style="height:44px"></div>
+          <div id="w-picker" class="drum-scroll">
+            <div style="height:44px;flex-shrink:0"></div>
+            ${makeWeightValues().map(v=>`<div class="drum-item" style="height:44px;font-size:22px;font-weight:700;color:var(--txt)">${v}<span style="font-size:11px;color:var(--txt3);font-weight:400;margin-left:3px">lb</span></div>`).join('')}
+            <div style="height:44px;flex-shrink:0"></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:2">
+        <div class="sec-label" style="text-align:center">Reps</div>
+        <div class="drum-wrap" style="height:132px">
+          <div class="drum-mask-top" style="height:44px"></div>
+          <div class="drum-sel-line" style="top:44px;height:44px"></div>
+          <div class="drum-mask-bot" style="height:44px"></div>
+          <div id="r-picker" class="drum-scroll">
+            <div style="height:44px;flex-shrink:0"></div>
+            ${makeRepValues().map(v=>`<div class="drum-item" style="height:44px;font-size:22px;font-weight:700;color:var(--txt)">${v}</div>`).join('')}
+            <div style="height:44px;flex-shrink:0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+    <div class="sec-label">RPE (set effort)</div>
+    <div class="rpe-scale">
+      ${[5,6,7,8,9,10].map(r=>`<button class="rpe-btn ${cs.rpe===r?'sel':''}" data-rpe="${r}" onclick="setRPE(${r})">${r}</button>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--txt3);margin-top:6px">5=easy · 8=2 reps left · 10=max</div>
+  </div>
+
+
+  <div style="padding:14px 16px">
+    <div style="font-size:11px;color:var(--txt3);text-align:center">
+      Adjust weight and reps above, then log this set
+    </div>
+  </div>
+</div>
+
+<button class="add-acc-btn" style="margin:0 16px 10px" onclick="S.screen='addEx';render()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+  Add accessory exercise
+</button>
+
+${doneSets>0?`
+  <div style="padding:0 16px 10px">
+    <div class="sec-label">Logged sets — ${ex.n}</div>
+    <div class="card" style="padding:8px 16px">
+      ${sets.filter(s=>s.done).map((s,i)=>`
+        <div class="past-set-row">
+          <span style="color:var(--txt3)">Set ${i+1}</span>
+          <span style="font-weight:600">${s.w} lbs × ${s.reps}</span>
+          <span style="color:var(--txt2)">RPE ${s.rpe||'—'}</span>
+          <span style="color:var(--txt3)">${Math.round(s.w*s.reps).toLocaleString()} <span style="font-size:10px;opacity:.6">vol</span></span>
+        </div>`).join('')}
+    </div>
+  </div>`:''}
+
+<div class="workout-bar" style="padding:10px 14px;flex-direction:column;gap:8px">
+  <!-- Primary action: always visible, full width -->
+  <button class="btn btn-p" style="width:100%;height:52px;font-size:16px;font-weight:700;border-radius:12px" onclick="logSet()">
+    Log Set ${w.si+1}
+    <span style="opacity:.65;font-size:12px;font-weight:400;margin-left:6px">→ ${fmtTime(MODES[w.mode].rest)} rest</span>
+  </button>
+  <!-- Secondary row -->
+  <div style="display:flex;gap:8px;width:100%">
+    <button class="btn btn-s" style="flex:1;height:38px;font-size:12px" onclick="endExercise()">
+      ${w.ei<w.exIds.length-1?'Next Exercise →':'Finish Exercise'}
+    </button>
+    <button class="btn btn-g" style="flex:0 0 auto;height:38px;font-size:12px;padding:0 14px;border-radius:9px" onclick="endWorkout()">End Workout</button>
+  </div>
+</div>`;
+}
+
+// =====================================================================
+// TIMER
+// =====================================================================
+function rTimer(){
+  const R=90,circ=2*Math.PI*R;
+  // Compute smart "next" context
+  const timerNext=(()=>{
+    if(!S.workout)return{label:'Next set',sub:''};
+    const w=S.workout;
+    const allDone=w.sets[w.ei].every(s=>s.done);
+    if(allDone){
+      // All sets done — next is the next exercise
+      const ni=w.ei+1;
+      if(ni<w.exIds.length){
+        return{label:EX[w.exIds[ni]]?.n||w.exIds[ni], sub:'Next exercise'};
+      }
+      return{label:'All exercises complete',sub:'Tap End Workout when ready'};
+    }
+    // Still sets remaining for current exercise
+    const setNum=w.si+1;
+    return{label:EX[w.exIds[w.ei]]?.n||'',sub:`Set ${setNum} of ${w.sets[w.ei].length}`};
+  })();
+  return`
+<div class="timer-wrap">
+  <div style="font-size:11px;color:var(--txt2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Rest</div>
+  <div class="t-ring">
+    <svg width="200" height="200" viewBox="0 0 200 200">
+      <circle class="t-track" cx="100" cy="100" r="${R}"/>
+      <circle class="t-fill" id="t-fill" cx="100" cy="100" r="${R}"
+        style="stroke-dasharray:${circ};stroke-dashoffset:${circ*(1-timer.rem/timer.total)}"/>
+    </svg>
+    <div class="t-count" id="t-count">${fmtTime(timer.rem)}</div>
+  </div>
+  <div style="font-size:12px;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">${timerNext.sub}</div>
+  <div style="font-size:14px;color:var(--txt2);margin-bottom:24px;font-weight:500">${timerNext.label}</div>
+  <div style="display:flex;gap:10px;margin-bottom:16px">
+    <button class="btn btn-s btn-sm" onclick="adjTimer(-15)" style="min-width:60px">−15s</button>
+    <button class="btn btn-s btn-sm" onclick="adjTimer(30)" style="min-width:60px">+30s</button>
+  </div>
+  <button class="btn btn-p" style="width:200px;height:48px;font-size:15px" onclick="skipTimer()">Skip Rest</button>
+</div>
+<div class="workout-bar">
+  <button class="btn btn-s" onclick="endExercise()">
+    ${S.workout&&S.workout.ei<S.workout.exIds.length-1?'Next Exercise →':'Finish Last Exercise'}
+  </button>
+  <button class="btn btn-p" onclick="endWorkout()" style="flex:0 0 auto;padding:0 18px">End Workout</button>
+</div>`;
+}
+
+// =====================================================================
+// HISTORY
+// =====================================================================
+function rHistory(){
+  const h=getHistory();
+  return`
+<div class="page-head">
+  <div><div class="page-title">Log</div><div class="page-sub">${h.length} session${h.length===1?'':'s'}</div></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button onclick="importBackup()" style="background:none;border:1px solid var(--border2);color:var(--txt2);
+      font-size:12px;font-weight:500;padding:5px 11px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+      Import
+    </button>
+    <button onclick="exportBackup()" style="background:none;border:1px solid var(--border2);color:var(--txt2);
+      font-size:12px;font-weight:500;padding:5px 11px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 104 16.29"/></svg>
+      Export
+    </button>
+  </div>
+</div>
+<div style="padding:0 16px 30px">
+  ${h.length===0?`<div class="empty"><div class="empty-icon">📋</div><div>No workouts yet</div>
+    <div style="font-size:13px;margin-top:6px;color:var(--txt3)">Start a workout to log it here</div></div>`
+  :h.map((w,i)=>{
+    const d=new Date(w.date);
+    const totalSets=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).length,0);
+    const vol=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).reduce((b,x)=>b+x.w*x.reps,0),0);
+    const mc=MODES[w.mode]?.c||'#999';
+    return`<div class="hist-card" onclick="S.histIdx=${i};S.screen='histDetail';render()">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div style="font-size:15px;font-weight:600">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:2px">${w.dayLabel||''} · ${w.dur||'?'}min · ${totalSets} sets</div>
+        </div>
+        <span class="mode-tag" style="background:${mc}22;color:${mc}">${MODES[w.mode]?.n||w.mode}</span>
+      </div>
+      <div class="pills">${w.exIds.slice(0,4).map(id=>`<span class="pill">${shortName(id)}</span>`).join('')}
+        ${w.exIds.length>4?`<span class="pill">+${w.exIds.length-4}</span>`:''}</div>
+      <div style="font-size:12px;color:var(--txt3);margin-top:8px">${vol.toLocaleString()} lbs total volume</div>
+    </div>`;
+  }).join('')}
+</div>`;
+}
+
+function rHistDetail(){
+  const h=getHistory();const w=h[S.histIdx];
+  if(!w){S.screen='history';return rHistory();}
+  const d=new Date(w.date);
+  const mc=MODES[w.mode]?.c||'#999';
+
+  // Session-level totals
+  const totalSets=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).length,0);
+  const totalVol=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).reduce((b,x)=>b+x.w*x.reps,0),0);
+  const avgRpe=(()=>{
+    const all=w.sets.flatMap(s=>s.filter(x=>x.done&&x.rpe)).map(x=>x.rpe);
+    return all.length?+(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1):null;
+  })();
+
+  return`
+<div class="page-head" style="align-items:center">
+  <button onclick="S.screen='history';render()"
+    style="background:none;border:none;color:var(--txt2);font-size:22px;cursor:pointer;padding-right:10px">‹</button>
+  <div style="flex:1;min-width:0">
+    <div class="page-title" style="font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.dayLabel||'Workout'}</div>
+    <div class="page-sub">${d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} · ${w.dur||'?'}min</div>
+  </div>
+  <span class="mode-tag" style="flex-shrink:0;background:${mc}22;color:${mc};margin-left:10px">${MODES[w.mode]?.n||w.mode}</span>
+</div>
+
+<div style="padding:0 16px 30px">
+  <!-- Session summary -->
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat-box">
+      <div class="stat-n">Duration</div>
+      <div class="stat-v">${w.dur||'?'}<span style="font-size:13px;font-weight:400;color:var(--txt2)">m</span></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-n">Sets</div>
+      <div class="stat-v">${totalSets}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-n">Volume</div>
+      <div class="stat-v" style="font-size:16px">${totalVol>=1000?(totalVol/1000).toFixed(1)+'k':totalVol.toLocaleString()}</div>
+    </div>
+  </div>
+  ${avgRpe?`<div style="font-size:12px;color:var(--txt3);margin-bottom:16px;text-align:center">Avg effort: <span style="color:${mc}">${avgRpe}/10</span></div>`:''}
+
+  <!-- Per-exercise breakdown -->
+  ${w.exIds.map((exId,ei)=>{
+    const done=w.sets[ei].filter(s=>s.done);
+    if(!done.length)return'';
+    const exVol=done.reduce((a,s)=>a+s.w*s.reps,0);
+    const bestSet=done.reduce((b,s)=>s.w>b.w||(s.w===b.w&&s.reps>b.reps)?s:b,done[0]);
+    const e1rm=Math.round(bestSet.w*(1+bestSet.reps/30));
+    const mgC=MG_COLORS[EX[exId]?.mg]||mc;
+    return`<div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div class="sec-label" style="margin-bottom:2px">${EX[exId]?.n||exId}</div>
+          <div style="font-size:11px;color:var(--txt3)">${EX[exId]?.eq||''}</div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--txt2)">
+          <div style="color:${mgC};font-weight:600">${exVol.toLocaleString()} lbs vol</div>
+          <div style="margin-top:2px">e1RM ~${e1rm} lbs</div>
+        </div>
+      </div>
+      <div class="card" style="padding:4px 16px">
+        <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:0 12px;font-size:12px;
+          color:var(--txt3);padding:6px 0;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.04em">
+          <span>SET</span><span>WEIGHT × REPS</span><span>RPE</span><span>VOL</span>
+        </div>
+        ${done.map((s,i)=>{
+          const isBest=s===bestSet;
+          return`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:0 12px;
+            padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;
+            ${isBest?'background:'+mgC+'0d;margin:0 -16px;padding:8px 16px;border-radius:0;':''}">
+            <span style="color:var(--txt3)">${i+1}</span>
+            <span style="font-weight:600">${s.w} lbs × ${s.reps}
+              ${isBest?'<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:'+mgC+'30;color:'+mgC+';margin-left:4px">BEST</span>':''}
+            </span>
+            <span style="color:var(--txt2)">${s.rpe||'—'}</span>
+            <span style="color:var(--txt3)">${Math.round(s.w*s.reps).toLocaleString()}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')}
+</div>`;
+}
+
+// =====================================================================
+// PROGRESS
+// =====================================================================
+function rProgress(){
+  const allMgs=['All',...Object.keys(MG_COLORS)];
+  // Filter exercises by selected muscle group
+  const exOpts=Object.entries(EX)
+    .filter(([,e])=>S.progMgFilter==='All'||e.mg===S.progMgFilter)
+    .sort((a,b)=>a[1].mg.localeCompare(b[1].mg)||a[1].n.localeCompare(b[1].n));
+  // If current selection isn't in filtered list, auto-pick first
+  if(!exOpts.find(([id])=>id===S.progEx)&&exOpts.length>0)S.progEx=exOpts[0][0];
+  const h=getHistory();
+  return`
+<div class="page-head">
+  <div><div class="page-title">Progress</div><div class="page-sub">Est. 1RM · Epley formula</div></div>
+</div>
+
+<!-- Muscle group filter -->
+<div style="display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto">
+  <style>.mg-ft::-webkit-scrollbar{display:none}</style>
+  ${allMgs.map(mg=>{
+    const c=MG_COLORS[mg];
+    const isSel=S.progMgFilter===mg;
+    return`<button onclick="S.progMgFilter='${mg}';render()"
+      style="flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;
+      cursor:pointer;white-space:nowrap;border:1px solid ${isSel&&c?c+'80':'var(--border2)'};
+      background:${isSel?(c?c+'22':'var(--mode)'):'var(--bg2)'};
+      color:${isSel?(c||'#fff'):'var(--txt2)'}">${mg}</button>`;
+  }).join('')}
+</div>
+
+<div style="padding:0 16px">
+  <select id="prog-sel" onchange="S.progEx=this.value;initChart()">
+    ${exOpts.map(([id,e])=>`<option value="${id}" ${id===S.progEx?'selected':''}>${e.n}</option>`).join('')}
+  </select>
+  <div class="card" style="margin-bottom:14px">
+    <div id="chart-wrap" style="min-height:180px;display:flex;align-items:center;justify-content:center">
+      <div style="color:var(--txt3);font-size:13px">Loading chart…</div>
+    </div>
+  </div>
+  <div id="prog-stats"></div>
+
+  <div class="sec-label" style="margin-top:20px">Recent sessions</div>
+  ${h.length===0?'<div style="color:var(--txt3);font-size:13px">No data yet</div>':
+    h.slice(0,8).map(w=>{
+      const vol=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).reduce((b,x)=>b+x.w*x.reps,0),0);
+      const totalSets=w.sets.reduce((a,s)=>a+s.filter(x=>x.done).length,0);
+      const mc=MODES[w.mode]?.c||'#999';
+      return`<div style="display:flex;justify-content:space-between;align-items:center;
+        padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer"
+        onclick="S.histIdx=${h.indexOf(w)};S.screen='histDetail';render()">
+        <div>
+          <div>${new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:2px">${w.dayLabel||''} · ${totalSets} sets</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:600">${vol.toLocaleString()} lbs</div>
+          <div style="font-size:11px;margin-top:2px"><span style="color:${mc}">${MODES[w.mode]?.n||''}</span></div>
+        </div>
+      </div>`;
+    }).join('')}
+  <div style="height:30px"></div>
+</div>`;
+}
+
+// =====================================================================
+// SWAP SCREEN
+// =====================================================================
+const MG_COLORS={'Chest':'#e24b4a','Back':'#378add','Legs':'#1d9e75','Posterior':'#ef9f27',
+  'Shoulders':'#a78bfa','Biceps':'#5dcaa5','Triceps':'#f09595','Core':'#888'};
+
+function rSwap(){
+  const isProgram=S.swapCtx==='program';
+  const isBuilder=S.swapCtx==='builder';
+  const ap=getActiveProgram();
+
+  // Resolve which exercise is being replaced
+  let exId;
+  if(isBuilder){
+    exId=S.bPreview?.[S.swapDayIdx]?.exIds[S.swapIdx];
+  } else if(isProgram){
+    exId=getDayProgram(ap?.[S.activeDayIdx]?.id)[S.swapIdx];
+  } else {
+    exId=S.workout?.exIds[S.swapIdx];
+  }
+
+  const ex=EX[exId];
+  if(!ex)return`<div class="empty">Exercise not found</div>`;
+  const muscle=ex.mg;
+  const mgColor=MG_COLORS[muscle]||'var(--mode)';
+
+  const backFn=isBuilder
+    ?"S.swapIdx=null;S.screen='builder';render()"
+    :isProgram
+    ?"S.swapIdx=null;S.screen='home';render()"
+    :"S.swapIdx=null;S.screen='active';render()";
+
+  const selectFn=isBuilder?'swapBuilderEx':isProgram?'swapProgramEx':'swapExercise';
+
+  const contextLabel=isBuilder
+    ?`Preview · ${S.bPreview?.[S.swapDayIdx]?.label||''}`
+    :isProgram?'Program':'Active workout';
+
+  const sameGroup=Object.entries(EX)
+    .filter(([id,e])=>e.mg===muscle&&id!==exId)
+    .sort((a,b)=>{
+      const aS=ex.alt?.includes(a[0])?0:a[1].compound?1:2;
+      const bS=ex.alt?.includes(b[0])?0:b[1].compound?1:2;
+      return aS-bS||a[1].n.localeCompare(b[1].n);
+    });
+
+  const eqSet=['All',...new Set(sameGroup.map(([,e])=>e.eq))];
+  const filtered=S.swapEqFilter==='All'?sameGroup:sameGroup.filter(([,e])=>e.eq===S.swapEqFilter);
+  const suggested=filtered.filter(([id])=>ex.alt?.includes(id));
+  const compounds=filtered.filter(([id,e])=>!ex.alt?.includes(id)&&e.compound);
+  const accessories=filtered.filter(([id,e])=>!ex.alt?.includes(id)&&!e.compound);
+
+  function swapRow(id,e){
+    const isSugg=ex.alt?.includes(id);
+    return`<div class="ex-row" style="cursor:pointer" onclick="${selectFn}('${id}')">
+      <div style="flex:1">
+        <div class="ex-name">${e.n}
+          ${isSugg?'<span class="sugg-badge">suggested</span>':''}
+          ${e.compound?'<span class="compound-badge">compound</span>':''}
+        </div>
+        <div class="ex-meta">${e.eq}</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mode)" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>`;
+  }
+
+  return`
+<div class="wh" style="position:sticky;top:0;z-index:10">
+  <div style="display:flex;align-items:center;gap:8px">
+    <button onclick="${backFn}" style="background:none;border:none;color:var(--txt2);font-size:22px;cursor:pointer;line-height:1">‹</button>
+    <div>
+      <div class="wh-title">Swap Exercise</div>
+      <div class="wh-sub">${contextLabel} · ${muscle}</div>
+    </div>
+  </div>
+</div>
+<div style="padding:14px 16px 6px">
+  <div class="sec-label">Replacing</div>
+  <div class="cur-ex-card">
+    <div style="width:9px;height:9px;border-radius:50%;background:${mgColor};flex-shrink:0"></div>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:600">${ex.n}${ex.compound?'<span class="compound-badge" style="vertical-align:middle;margin-left:8px">compound</span>':''}</div>
+      <div style="font-size:11px;color:var(--txt2);margin-top:2px">${ex.eq} · <span style="color:${mgColor}">${muscle}</span></div>
+    </div>
+  </div>
+</div>
+<div class="filt-tabs">
+  ${eqSet.map(eq=>`<button class="filt-tab ${S.swapEqFilter===eq?'on':''}" onclick="S.swapEqFilter='${eq}';render()">${eq}</button>`).join('')}
+</div>
+<div style="padding:0 16px">
+  ${filtered.length===0?`<div style="text-align:center;padding:30px 0;color:var(--txt3)">No ${S.swapEqFilter} exercises for ${muscle}</div>`:`
+  ${suggested.length?`<div class="sec-label">Suggested</div><div class="card" style="padding:8px 16px;margin-bottom:14px">${suggested.map(([id,e])=>swapRow(id,e)).join('')}</div>`:''}
+  ${compounds.length?`<div class="sec-label">Compound</div><div class="card" style="padding:8px 16px;margin-bottom:14px">${compounds.map(([id,e])=>swapRow(id,e)).join('')}</div>`:''}
+  ${accessories.length?`<div class="sec-label">Accessories</div><div class="card" style="padding:8px 16px">${accessories.map(([id,e])=>swapRow(id,e)).join('')}</div>`:''}
+  `}
+  <div style="height:30px"></div>
+</div>`;
+}
+
+// =====================================================================
+// ADD ACCESSORY
+// =====================================================================
+function rAddEx(){
+  const groups={};
+  Object.entries(EX).forEach(([id,e])=>{if(!groups[e.mg])groups[e.mg]=[];groups[e.mg].push({id,...e});});
+  // Compound first within each group
+  Object.values(groups).forEach(arr=>arr.sort((a,b)=>(b.compound?1:0)-(a.compound?1:0)||a.n.localeCompare(b.n)));
+  return`
+<div class="wh" style="position:sticky;top:0;z-index:10">
+  <div style="display:flex;align-items:center;gap:8px">
+    <button onclick="S.screen='active';render()" style="background:none;border:none;color:var(--txt2);font-size:22px;cursor:pointer;line-height:1">‹</button>
+    <div class="wh-title">Add Accessory</div>
+  </div>
+</div>
+<div style="padding:0 16px">
+  ${Object.entries(groups).map(([mg,exs])=>`
+    <div style="margin-bottom:14px">
+      <div class="sec-label">${mg}</div>
+      <div class="card" style="padding:8px 16px">
+        ${exs.map(e=>`<div class="ex-row" style="cursor:pointer" onclick="addAccessory('${e.id}')">
+          <div style="flex:1">
+            <div class="ex-name">${e.n}${e.compound?'<span class="compound-badge">compound</span>':''}</div>
+            <div class="ex-meta">${e.eq}</div>
+          </div>
+          <span style="color:var(--mode);font-size:18px">+</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  `).join('')}
+  <div style="height:20px"></div>
+</div>`;
+}
+
+// =====================================================================
+// INTERACTIONS
+// =====================================================================
+// ---- PICKER VALUE LISTS ----
+function makeWeightValues(){const v=[];for(let w=0;w<=500;w+=S.wStep)v.push(+w.toFixed(1));return v;}
+function makeRepValues(){const v=[];for(let r=1;r<=35;r++)v.push(r);return v;}
+
+// ---- PICKER INIT (called after active screen renders) ----
+const DRUM_H=44; // item height px
+
+function initPickers(){
+  if(S.screen!=='active')return;
+  const cs=curSet();if(!cs)return;
+  _initDrum('w-picker', makeWeightValues(), cs.w, val=>{const c=curSet();if(c)c.w=val;});
+  _initDrum('r-picker', makeRepValues(),    cs.reps, val=>{const c=curSet();if(c)c.reps=val;});
+}
+
+function _initDrum(id, vals, initVal, onChange){
+  const el=document.getElementById(id);if(!el)return;
+  // Find nearest valid index
+  const idx=vals.reduce((b,v,i)=>Math.abs(v-initVal)<Math.abs(vals[b]-initVal)?i:b, 0);
+  // Scroll without animation
+  el.style.scrollBehavior='auto';
+  el.scrollTop=idx*DRUM_H;
+  // Debounced scroll handler
+  let t;
+  el.addEventListener('scroll',()=>{
+    clearTimeout(t);
+    t=setTimeout(()=>{
+      const i=Math.round(el.scrollTop/DRUM_H);
+      if(i>=0&&i<vals.length)onChange(vals[i]);
+    },60);
+  },{passive:true});
+  el.addEventListener('scrollend',()=>{
+    const i=Math.round(el.scrollTop/DRUM_H);
+    if(i>=0&&i<vals.length)onChange(vals[i]);
+  },{passive:true});
+}
+
+// ---- RPE — targeted update, no full re-render ----
+function setRPE(r){
+  const cs=curSet();if(!cs)return;
+  cs.rpe=(cs.rpe===r)?null:r;
+  document.querySelectorAll('.rpe-btn').forEach(btn=>{
+    const v=parseInt(btn.getAttribute('data-rpe'));
+    btn.classList.toggle('sel',v===cs.rpe);
+  });
+}
+
+// ---- Suggestion banner — targeted DOM removal ----
+function dismissSuggestion(exId){
+  const s=getWeightSuggestions();delete s[exId];LS.set('lift_sugg',s);
+  if(S.screen==='active'){
+    const b=document.getElementById('sugg-banner');if(b)b.style.display='none';
+  }else{render();}
+}
+
+function applySuggestion(exId){
+  const s=getWeightSuggestions()[exId];if(!s||!S.workout)return;
+  const ei=S.workout.exIds.indexOf(exId);if(ei===-1)return;
+  S.workout.sets[ei].forEach(st=>{if(!st.done)st.w=s.suggestedWeight;});
+  dismissSuggestion(exId);
+  // Scroll weight picker to suggested weight
+  const wEl=document.getElementById('w-picker');
+  if(wEl){
+    const cs=curSet();
+    if(cs){
+      const vals=makeWeightValues();
+      const idx=vals.reduce((b,v,i)=>Math.abs(v-cs.w)<Math.abs(vals[b]-cs.w)?i:b,0);
+      wEl.style.scrollBehavior='smooth';
+      wEl.scrollTop=idx*DRUM_H;
+    }
+  }
+}
+
+// Toggle weight increment and re-init picker in place
+function toggleWStep(){
+  S.wStep=S.wStep===5?2.5:5;
+  const btn=document.getElementById('wstep-btn');
+  if(btn)btn.textContent=S.wStep+'lb steps';
+  // Rebuild weight picker items in-place
+  const picker=document.getElementById('w-picker');
+  if(!picker)return;
+  const cs=curSet();
+  const vals=makeWeightValues();
+  // Snap current weight to nearest valid value
+  if(cs){cs.w=vals.reduce((b,v)=>Math.abs(v-cs.w)<Math.abs(b-cs.w)?v:b,vals[0]);}
+  picker.innerHTML=
+    `<div style="height:44px;flex-shrink:0"></div>`+
+    vals.map(v=>`<div class="drum-item" style="height:44px;font-size:22px;font-weight:700;color:var(--txt)">${v}<span style="font-size:11px;color:var(--txt3);font-weight:400;margin-left:3px">lb</span></div>`).join('')+
+    `<div style="height:44px;flex-shrink:0"></div>`;
+  // Re-attach scroll handler and scroll to current value
+  _initDrum('w-picker',vals,cs?.w||0,val=>{const c=curSet();if(c)c.w=val;});
+}
+
+// Legacy — kept for programmatic use
+function adjW(d){const cs=curSet();if(!cs)return;cs.w=Math.max(0,+(cs.w+d).toFixed(1));}
+function adjR(d){const cs=curSet();if(!cs)return;cs.reps=Math.max(1,cs.reps+d);}
+function promptWeight(){}
+function setRPE(r){const cs=curSet();if(!cs)return;cs.rpe=(cs.rpe===r)?null:r;render();}
+
+function openSwap(idx){S.swapIdx=idx;S.swapCtx='workout';S.swapEqFilter='All';S.screen='swap';render();}
+function openProgramSwap(idx){S.swapIdx=idx;S.swapCtx='program';S.swapEqFilter='All';S.screen='swap';render();}
+
+// =====================================================================
+// MODE MODAL
+// =====================================================================
+function showModeModal(){
+  removeModeModal();
+  const ap=getActiveProgram();
+  const currentMode=ap?ap[S.activeDayIdx]?.mode:S.mode;
+  const div=document.createElement('div');div.id='mode-modal';div.className='modal-bg';
+  div.innerHTML=`
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div style="font-size:17px;font-weight:700;margin-bottom:4px">Training Mode</div>
+  <div style="font-size:12px;color:var(--txt2);margin-bottom:16px">
+    ${ap?`Updates <strong style="color:var(--txt)">${ap[S.activeDayIdx]?.label}</strong> only`:'Global default'}
+  </div>
+  ${Object.entries(MODES).map(([k,m])=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="setMode('${k}')">
+      <div style="width:12px;height:12px;border-radius:50%;background:${m.c};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600">${m.n}</div>
+        <div style="font-size:12px;color:var(--txt2);margin-top:2px">${m.desc}</div>
+      </div>
+      ${currentMode===k?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${m.c}" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+    </div>`).join('')}
+  <button class="btn btn-s btn-xl" style="margin-top:16px" onclick="removeModeModal()">Cancel</button>
+</div>`;
+  div.addEventListener('click',()=>removeModeModal());
+  document.body.appendChild(div);
+}
+function removeModeModal(){const m=document.getElementById('mode-modal');if(m)m.remove();}
+function setMode(m){
+  const ap=getActiveProgram();
+  if(ap){ap[S.activeDayIdx].mode=m;saveActiveProgram(ap);}
+  else{S.mode=m;savePrefs({mode:m});}
+  removeModeModal();render();
+}
+
+// =====================================================================
+// CHART
+// =====================================================================
+let chart=null;
+function initChart(){
+  const sel=document.getElementById('prog-sel');
+  const exId=sel?sel.value:S.progEx;S.progEx=exId;
+  const h=getHistory();
+  const pts=[];
+  h.slice().reverse().forEach(w=>{
+    const ei=w.exIds.indexOf(exId);if(ei===-1)return;
+    const done=w.sets[ei].filter(s=>s.done);if(!done.length)return;
+    const e1rm=Math.max(...done.map(s=>s.w*(1+s.reps/30)));
+    pts.push({x:new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}),y:Math.round(e1rm)});
+  });
+  const wrap=document.getElementById('chart-wrap');if(!wrap)return;
+  if(!window.Chart){wrap.innerHTML='<div style="color:var(--txt3);font-size:13px">Chart loading…</div>';return;}
+  if(chart){chart.destroy();chart=null;}
+  if(!pts.length){
+    wrap.innerHTML='<div style="color:var(--txt3);font-size:13px;padding:40px 0">No data for this exercise yet</div>';
+    const st=document.getElementById('prog-stats');if(st)st.innerHTML='';return;
+  }
+  wrap.innerHTML='<canvas id="prog-chart" style="max-width:100%"></canvas>';
+  // Use muscle group color for this exercise, not the current training mode color
+  const exMg=EX[exId]?.mg;
+  const mc=MG_COLORS[exMg]||MODES[S.mode].c;
+  chart=new window.Chart(document.getElementById('prog-chart'),{
+    type:'line',
+    data:{labels:pts.map(p=>p.x),datasets:[{label:'Est. 1RM',data:pts.map(p=>p.y),
+      borderColor:mc,backgroundColor:mc+'33',borderWidth:2.5,pointBackgroundColor:mc,
+      pointRadius:5,fill:true,tension:.35}]},
+    options:{responsive:true,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#222',titleColor:'#aaa',bodyColor:'#fff'}},
+      scales:{x:{ticks:{color:'#666',font:{size:11}},grid:{color:'#222'}},
+              y:{ticks:{color:'#666',font:{size:11}},grid:{color:'#222'}}}}
+  });
+  const statsEl=document.getElementById('prog-stats');
+  if(statsEl&&pts.length){
+    const best=Math.max(...pts.map(p=>p.y));
+    const last=pts[pts.length-1].y;
+    const delta=pts.length>1?last-pts[0].y:0;
+    statsEl.innerHTML=`<div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-box"><div class="stat-n">Sessions</div><div class="stat-v">${pts.length}</div></div>
+      <div class="stat-box"><div class="stat-n">Best e1RM</div><div class="stat-v">${best}</div></div>
+      <div class="stat-box"><div class="stat-n">Change</div><div class="stat-v" style="color:${delta>=0?mc:MODES.strength.c}">${delta>=0?'+':''}${delta}</div></div>
+    </div>`;
+  }
+}
+
+// =====================================================================
+// EXERCISE INFO DATA
+// pri = primary muscles highlighted (bright), sec = secondary (dim)
+// =====================================================================
+const EX_INFO = {
+  'bb-bench': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'Barbell · Flat bench · Power rack',
+    desc:'Supine horizontal press. The bar travels a slight arc from full lockout down to the lower chest, then back up. A fundamental compound pressing movement for chest development and upper-body pushing strength.',
+    cues:['Retract and depress scapulae before unracking — hold that tension throughout','Lower bar to nipple line, not clavicle; elbows ~75° from torso','Maintain foot drive into floor; controlled lumbar arch','Wrists stacked directly over elbows at all times','Touch chest lightly — no bounce — then press to full lockout']},
+  'bb-inc': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'Barbell · Incline bench (30–45°) · Rack',
+    desc:'Incline press shifts emphasis to the upper (clavicular) head of the pectoralis major and increases anterior deltoid involvement. Bench angle 30–45°; beyond 45° it becomes primarily a shoulder press.',
+    cues:['Set bench 30–45° — higher angles reduce chest involvement','Bar descends to upper chest, just below clavicle','Scapular retraction same as flat bench','Grip slightly narrower than flat bench']},
+  'bb-ohp': {pri:['Shoulders'],sec:['Triceps','Core'],
+    equip:'Barbell · Power rack or floor',
+    desc:'Standing overhead press. Bar starts at clavicle height, elbows slightly in front of bar, pressed to full lockout overhead. Trunk bracing essential. Best compound movement for shoulder mass and overhead strength.',
+    cues:['Start position: bar at upper chest, elbows forward and slightly below bar','Drive bar straight up, head moves back then through as bar passes','Full lockout with ears in front of arms at top','Brace abs hard — do not hyperextend lumbar','Grip shoulder-width; wrists neutral, not extended']},
+  'bb-dl': {pri:['Posterior'],sec:['Back','Legs','Core'],
+    equip:'Barbell · Floor / Bumper plates',
+    desc:'The conventional deadlift is a full-body hip-hinge pulling movement. Bar stays in contact with the legs, hips rise and fall with the bar. One of the highest-loading exercises available.',
+    cues:['Set feet hip-width; bar over mid-foot, ~1 inch from shins','Hip hinge to grip; lats "protect your armpits" — create lat tension before pulling','Breath and brace; push floor away, do not jerk','Bar travels straight up, dragging shins','Hips and shoulders rise at same rate out of the hole; lock out with glutes, not hyperextension']},
+  'bb-rdl': {pri:['Posterior'],sec:['Back'],
+    equip:'Barbell',
+    desc:'Romanian deadlift emphasises the hamstrings and glutes eccentrically. The bar stays close to the legs, hips hinge back until a strong hamstring stretch is felt, then return to standing.',
+    cues:['Soft knee bend maintained throughout — this is NOT a squat','Push hips back; feel hamstring tension, not low-back rounding','Bar stays against legs the entire movement','Lower to mid-shin at most; stop at point of pelvic tilt','Squeeze glutes to return to standing']},
+  'bb-sq': {pri:['Legs'],sec:['Posterior','Core'],
+    equip:'Barbell · Power rack · Safety bars',
+    desc:'High-bar back squat: bar rests on upper traps, descent is a vertical squat with knees tracking toes. Considered the primary compound lower-body exercise. High neurological demand and systemic stimulus.',
+    cues:['Bar on upper traps (high-bar) or lower (low-bar — shifts to posterior)','Brace hard: fill 360° of the belly with air before descent','Knees track over toes throughout — not caving in','Break parallel: crease of hip below top of knee','Controlled descent 2–3s; drive through full foot, not just toes']},
+  'bb-row': {pri:['Back'],sec:['Biceps','Posterior'],
+    equip:'Barbell',
+    desc:'Horizontal pulling movement performed with torso roughly parallel to the floor. Trains the lats, rhomboids, traps, and rear delts in a loaded stretch position.',
+    cues:['Hinge to ~45–70° forward lean; maintain neutral spine','Pull bar to lower abdomen/hip crease — not upper chest','Lead with elbows, not hands; retract scapulae at top','Eccentric: lower under control, feel lat stretch','Avoid using momentum from the hips']},
+  'bb-trap': {pri:['Posterior'],sec:['Legs','Back'],
+    equip:'Trap bar (hex bar) · Floor',
+    desc:'Trap bar deadlift allows a more upright torso and places the load inline with the body\'s center of mass, reducing lumbar shear stress versus conventional deadlift. Useful for quad-dominant pulling or those with lumbar sensitivity.',
+    cues:['Stand in center of bar; handles at sides','Hip hinge with more knee bend than conventional — torso more upright','Push floor away; drive hips forward at top','Lockout at hips and knees simultaneously']},
+  'bb-fsq': {pri:['Legs'],sec:['Core','Shoulders'],
+    equip:'Barbell · Rack · Clean grip or cross-arm',
+    desc:'Front squat places bar on the front deltoids, requiring a very upright torso. Shifts stress to the quads and taxes core/upper back stability heavily. Higher technical demand than back squat.',
+    cues:['Clean grip: elbows high, parallel to floor throughout','Elbows drop = bar rolls forward = collapse — protect elbows first','More upright torso than back squat by necessity','Knees forward over toes is acceptable; ankle mobility critical']},
+  'ares-hack': {pri:['Legs'],sec:['Posterior'],
+    equip:'Ares 2.0 Hack Squat Machine',
+    desc:'Machine hack squat with back pad support. Feet positioned forward of hips isolates quads with reduced spinal loading. The Ares 2.0 provides lever-arm resistance for smooth loading curve.',
+    cues:['Foot position higher = more glute/ham; lower = more quad','Full depth: below parallel unless joint restrictions','Control descent; pause briefly at bottom','Drive through full foot, not just toes']},
+  'ares-lp': {pri:['Legs'],sec:['Posterior'],
+    equip:'Ares 2.0 Leg Press',
+    desc:'Seated leg press on Ares 2.0. Removes spinal compressive load entirely. Excellent for isolating quads and loading the legs with high volume when axial loading is not appropriate.',
+    cues:['Feet shoulder-width, mid-platform','Do not lock knees at top — maintain slight bend','Full ROM: 90° knee angle at bottom','Adjust foot height to shift quad vs glute emphasis']},
+  'ares-curl': {pri:['Posterior'],sec:[],
+    equip:'Ares 2.0 Leg Curl Attachment',
+    desc:'Lying or seated leg curl targeting the hamstrings through knee flexion. Ares 2.0 lever arm provides resistance through full ROM.',
+    cues:['Full extension at bottom — do not shorten ROM','Curl heel to glute; brief squeeze at peak contraction','Avoid hip flexor engagement; keep hips flat','Slow eccentric for hypertrophy — 3s lower']},
+  'ares-ext': {pri:['Legs'],sec:[],
+    equip:'Ares 2.0 Leg Extension Attachment',
+    desc:'Seated knee extension isolating the quadriceps. Useful accessory after compound leg work. Ares lever arm provides consistent resistance.',
+    cues:['Full extension at top — squeeze quad hard','Controlled descent — 2s eccentric','Not appropriate as a warm-up for ACL-sensitive individuals under load','Toes slightly externally rotated to bias VMO']},
+  'ares-cp': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'Ares 2.0 Chest Press',
+    desc:'Bilateral machine chest press on Ares 2.0. Lever arm provides a strength-curve-appropriate resistance profile. Removes stabilisation demand versus free weight pressing.',
+    cues:['Retract scapulae into pad before pressing','Full ROM: elbows slightly behind torso at bottom','Drive handles together slightly to increase pec recruitment','Avoid shrugging shoulders at top']},
+  'ares-sp': {pri:['Shoulders'],sec:['Triceps'],
+    equip:'Ares 2.0 Shoulder Press',
+    desc:'Seated overhead machine press on Ares 2.0. Fixed path reduces stabilization demand, allowing focus on deltoid overload.',
+    cues:['Seat height: handles at ear level at start','Full extension overhead without shrugging','Control descent below parallel to ear level','Keep core braced against back pad']},
+  'ares-row': {pri:['Back'],sec:['Biceps'],
+    equip:'Ares 2.0 Row Attachment',
+    desc:'Seated horizontal row on Ares 2.0. Targets lats, rhomboids, and mid-back. Lever arm provides consistent resistance throughout the pull.',
+    cues:['Chest against pad; pull handles to lower ribs','Lead with elbows; retract scapulae at full contraction','Hold 1s at end-ROM; resist the return slowly','Avoid rocking torso to generate momentum']},
+  'halo-fly': {pri:['Chest'],sec:[],
+    equip:'PRX Halo Lever Arms · Bench or standing',
+    desc:'Cable-style chest fly on PRX Halo lever arms. Maintains tension through full ROM unlike dumbbells. Excellent pec isolation movement emphasising the stretch position.',
+    cues:['Slight elbow bend maintained — do not straighten or over-bend','Arms move in arc from sides to centreline — "hugging a barrel"','Feel pec stretch at widest point; do not let shoulders roll forward','Squeeze pecs together at top; brief pause']},
+  'halo-ip': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'PRX Halo Lever Arms · Incline bench',
+    desc:'Incline press on PRX Halo lever arms. Lever arm provides resistance throughout the full pressing arc, targeting upper chest and anterior deltoids.',
+    cues:['Set incline 30–45°','Drive handles up and slightly inward','Full lockout at top; full ROM at bottom','Scapular retraction before each rep']},
+  'halo-row': {pri:['Back'],sec:['Biceps'],
+    equip:'PRX Halo Lever Arms · Standing or seated',
+    desc:'Horizontal row on PRX Halo lever arms. Fixed lever path provides consistent resistance. Targets lats and mid-back.',
+    cues:['Set handles at hip height for lat bias; chest height for mid-back bias','Pull elbows back past torso','Scapular retraction at peak; pause 1s','Control return to full arm extension — do not release tension']},
+  'halo-sp': {pri:['Shoulders'],sec:['Triceps'],
+    equip:'PRX Halo Lever Arms',
+    desc:'Overhead shoulder press on PRX Halo lever arms. Lever arm provides smooth pressing resistance with continuous tension.',
+    cues:['Start handles at shoulder height; press to full extension','Keep core braced; avoid excessive lumbar arch','Controlled descent back to start position']},
+  'halo-lat': {pri:['Shoulders'],sec:[],
+    equip:'PRX Halo Lever Arms',
+    desc:'Lateral raise on PRX Halo lever arms. Targets medial deltoid through shoulder abduction. Lever arms maintain tension at bottom of movement, unlike dumbbells.',
+    cues:['Arms rise to shoulder height — no higher (traps take over above 90°)','Lead with elbows, not wrists','Slight forward lean (5–10°) shifts stress to mid-delt','2s up, 3s down — slow eccentric for growth']},
+  'halo-te': {pri:['Triceps'],sec:[],
+    equip:'PRX Halo Lever Arms',
+    desc:'Overhead or pushdown tricep extension on PRX Halo lever arms. Stretches the long head of the triceps when done overhead — highest growth stimulus for triceps.',
+    cues:['Keep elbows fixed; only the forearm moves','Full extension at bottom; do not lock out aggressively','Overhead position: elbows forward, not flared wide','Slow eccentric into the stretched position']},
+  'halo-bc': {pri:['Biceps'],sec:[],
+    equip:'PRX Halo Lever Arms',
+    desc:'Bicep curl on PRX Halo lever arms. Maintains constant tension through full ROM including the contracted position.',
+    cues:['Elbows fixed at sides — no swinging','Full supination at top for complete bicep contraction','Lower fully to stretch — do not cut ROM short','Squeeze at the top for 1s']},
+  'halo-po': {pri:['Back'],sec:['Chest'],
+    equip:'PRX Halo Lever Arms · Flat or incline bench',
+    desc:'Pullover on PRX Halo lever arms. Trains the lat in a stretched overhead position. Also engages serratus anterior and lower pec.',
+    cues:['Keep slight elbow bend throughout','Feel lat stretch at full overhead extension','Arc movement — do not press','Rib cage expansion at full stretch']},
+  'db-flat': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'Dumbbells · Flat bench',
+    desc:'Dumbbell flat press. Greater ROM and independent arm movement compared to barbell. Useful for identifying and correcting strength imbalances.',
+    cues:['Lower dumbbells to chest-level, elbows ~75° from torso','Full stretch at bottom without shoulder impingement','Drive dumbbells together as you press — increases pec activation','Stabilise wrists; do not allow dumbbells to tilt']},
+  'db-inc': {pri:['Chest'],sec:['Shoulders','Triceps'],
+    equip:'Dumbbells · Incline bench (30–45°)',
+    desc:'Incline dumbbell press targeting upper chest. Allows greater stretch than barbell incline.',
+    cues:['Angle 30–45°; above 45° becomes shoulder press','Lower to upper-chest level','Neutral or pronated grip; both are valid','Full lockout without touching dumbbells at top']},
+  'db-ohp': {pri:['Shoulders'],sec:['Triceps'],
+    equip:'Dumbbells',
+    desc:'Seated or standing dumbbell overhead press. Independent arm movement improves shoulder stability and addresses imbalances.',
+    cues:['Elbows slightly in front of body at start — not directly to sides (shoulder impingement risk)','Full extension overhead; do not touch dumbbells at top','Control descent to ear level','Seated version reduces lumbar demand']},
+  'db-lat': {pri:['Shoulders'],sec:[],
+    equip:'Dumbbells',
+    desc:'Dumbbell lateral raise — primary medial deltoid isolation. Critical for shoulder width development. Most effective at 30° shoulder abduction plane (scapular plane).',
+    cues:['Slight forward torso lean (10°) keeps stress on mid-delt','Lead with elbows — imagine pouring a pitcher','Raise to shoulder height only','Slow eccentric (3s) → research shows 30% more hypertrophy stimulus']},
+  'db-row': {pri:['Back'],sec:['Biceps'],
+    equip:'Dumbbell · Bench for support',
+    desc:'Single-arm dumbbell row. Allows heavier loading and greater ROM versus barbell row. One arm working means full thoracic rotation available.',
+    cues:['Support hand and knee on bench; neutral spine','Pull dumbbell to hip, not armpit','Let shoulder drop at bottom for full lat stretch','Elbow stays close to body — "put it in your back pocket"']},
+  'db-gob': {pri:['Legs'],sec:['Core'],
+    equip:'Single dumbbell',
+    desc:'Goblet squat — dumbbell held vertically at chest height. Counterbalance allows upright torso and excellent squat depth. Good technique drill and hypertrophy exercise.',
+    cues:['Hold dumbbell vertically at sternum','Elbows inside knees at bottom; use them to push knees out','Full depth; sit into squat, do not collapse','Drive heels into floor; elbows stay up']},
+  'db-curl': {pri:['Biceps'],sec:[],
+    equip:'Dumbbells',
+    desc:'Dumbbell bicep curl. Supinate (rotate palm up) through the lift for full bicep contraction.',
+    cues:['Full supination at top — rotate pinky up','Lower fully — do not cut the stretch','Elbows fixed at sides; do not swing','Alternate or simultaneous: both are valid']},
+  'db-ham': {pri:['Biceps'],sec:[],
+    equip:'Dumbbells',
+    desc:'Hammer curl with neutral grip. Targets biceps brachii AND brachialis (often the limiting factor in arm size). Also engages brachioradialis.',
+    cues:['Neutral grip (thumbs up) throughout — do not supinate','Full ROM from full extension to full contraction','Elbows fixed; no swinging','Brachialis sits under the bicep — thickens the arm when developed']},
+  'db-tex': {pri:['Triceps'],sec:[],
+    equip:'Dumbbells',
+    desc:'Dumbbell tricep extension (overhead or lying). Overhead position stretches the long head most effectively — greatest growth stimulus for triceps.',
+    cues:['Overhead version: elbows forward, not flared','Only the forearm moves; upper arm stays vertical','Full extension at bottom; controlled lowering','Slow eccentric into the stretched position is key for hypertrophy']},
+  'db-rdl': {pri:['Posterior'],sec:[],
+    equip:'Dumbbells',
+    desc:'Dumbbell Romanian deadlift. Same mechanics as barbell RDL with lighter loads and independent arm movement.',
+    cues:['Push hips back; feel hamstrings load before bar moves low','Dumbbells track down the shins','Stop when pelvis tilts — not below mid-shin for most','Drive hips forward to standing; squeeze glutes at top']},
+  'db-lunge': {pri:['Legs'],sec:['Posterior'],
+    equip:'Dumbbells',
+    desc:'Walking lunge. Unilateral lower-body exercise combining quad and glute loading with balance demand. Each rep alternates legs.',
+    cues:['Long stride: front shin vertical at bottom position','Back knee approaches floor without touching','Keep torso upright; do not lean forward','Drive off front foot entirely to step through']},
+  'db-fly': {pri:['Chest'],sec:[],
+    equip:'Dumbbells · Flat bench',
+    desc:'Dumbbell chest fly. Pure pec isolation through shoulder horizontal adduction. High stretch loading makes it useful for pec hypertrophy as an accessory.',
+    cues:['Slight elbow bend (10–15°) — maintained, do not flex more','Wide arc down until comfortable stretch — no shoulder impingement','Think "hugging a large tree"','Do not try to lift heavy — this is an isolation movement']},
+  'db-front': {pri:['Shoulders'],sec:[],
+    equip:'Dumbbells',
+    desc:'Dumbbell front raise targeting anterior deltoid. Often over-programmed — anterior delts receive high stimulus from all pressing. Use sparingly.',
+    cues:['Lift to shoulder height — not overhead','Slight elbow bend maintained','Controlled descent','Can be done alternating or simultaneously']},
+  'bw-pullup': {pri:['Back'],sec:['Biceps'],
+    equip:'Pull-up bar',
+    desc:'Vertical pulling movement. One of the best lat development exercises. Chin-up (supinated grip) increases bicep involvement; pull-up (pronated) emphasises lats more.',
+    cues:['Full hang at bottom — dead hang — for complete lat stretch','Pull until chin clears bar; chest to bar for complete ROM','Avoid swinging or kipping for hypertrophy','Depress shoulders before pulling — "protect your armpits"','Width: shoulder-width to slightly wider; wider reduces ROM']},
+  'bw-dip': {pri:['Chest'],sec:['Triceps','Shoulders'],
+    equip:'Parallel dip bars or dip station',
+    desc:'Compound pressing movement using bodyweight. Forward lean emphasises chest; upright torso shifts to triceps. High pec stretch at bottom — excellent for chest hypertrophy.',
+    cues:['Lean forward 30° for chest bias; upright for tricep bias','Lower until shoulders are below elbows — full stretch','Keep elbows slightly flared, not pinned to sides','Press to lockout; avoid hyperextending elbows']},
+  'cb-row': {pri:['Back'],sec:['Biceps'],
+    equip:'Cable machine · Low pulley · Straight or V-bar',
+    desc:'Seated cable row. Constant tension through full ROM unlike free weights. Excellent for mid-back and lat development.',
+    cues:['Sit upright; slight forward lean at stretch position','Row to navel; scapular retraction at peak contraction','Control return — let shoulder blade protract forward','Do not rock torso; use back, not momentum']},
+  'cb-pd2': {pri:['Back'],sec:['Biceps'],
+    equip:'Cable machine · Lat pulldown bar',
+    desc:'Lat pulldown — vertical pull using cable machine. For those unable to do pull-ups or to add volume beyond bodyweight.',
+    cues:['Lean back slightly (10–15°); not excessive','Pull bar to upper chest; not behind neck','Elbows drive down and back','Full arm extension at top for complete lat stretch']},
+  'cb-fly': {pri:['Chest'],sec:[],
+    equip:'Cable machine · High pulleys · D-handles',
+    desc:'Cable chest fly. Constant tension throughout the movement unlike dumbbell flies. Excellent for pec isolation and the peak-contracted position.',
+    cues:['Set pulleys above shoulder height for standard fly','Maintain slight elbow bend throughout','Bring hands together in front of sternum; squeeze pecs','Slow eccentric — feel the stretch at the widest point']},
+  'cb-pd': {pri:['Triceps'],sec:[],
+    equip:'Cable machine · High pulley · Rope or bar',
+    desc:'Cable tricep pushdown. Constant tension isolation for the triceps. Rope attachment allows natural wrist rotation.',
+    cues:['Elbows pinned to sides throughout','Full extension — lockout at bottom','Rope: spread rope apart at bottom for full contraction','Control the weight up — slow eccentric']},
+  'cb-curl': {pri:['Biceps'],sec:[],
+    equip:'Cable machine · Low pulley · EZ-bar or rope',
+    desc:'Cable bicep curl. Constant tension at the bottom of the movement (unlike dumbbells). Good finisher for biceps.',
+    cues:['Full supination at top','Lower fully to complete stretch','Elbows fixed; avoid swinging','EZ-bar reduces wrist stress']},
+  'cb-lat': {pri:['Shoulders'],sec:[],
+    equip:'Cable machine · Low pulley · D-handle',
+    desc:'Cable lateral raise. Constant tension at bottom of movement (unlike dumbbells where bottom is easiest). Excellent medial deltoid isolation.',
+    cues:['Cross-body setup: cable from opposite low pulley','Raise arm in scapular plane (30° forward from lateral)','Lead with elbow; raise to shoulder height','Slow eccentric — 3s down']},
+  'cb-po': {pri:['Back'],sec:['Chest'],
+    equip:'Cable machine · High pulley',
+    desc:'Cable pullover. Trains the lat in an overhead stretched position with constant tension throughout. Also engages serratus anterior.',
+    cues:['Arms straight or slight elbow bend','Arc movement from overhead to hips','Feel lat stretch at start','Do not use hips or legs — lat-only movement']},
+  'cb-fp': {pri:['Shoulders'],sec:['Back'],
+    equip:'Cable machine · High pulley · Rope attachment',
+    desc:'Face pull targets the rear deltoids, external rotators, and upper traps. Critical for shoulder health and postural balance in heavy pressing programs.',
+    cues:['Rope at face height or above; pull to forehead/nose level','Elbows high — above wrists throughout','External rotation: end position like a double bicep pose','Essential postural balance exercise — include every upper-body day']},
+  'cb-pal': {pri:['Core'],sec:[],
+    equip:'Cable machine · Mid-height pulley',
+    desc:'Pallof press is an anti-rotation core exercise. The cable pulls the torso to rotate; the core resists. Trains core as a stabiliser, not a mover.',
+    cues:['Stand perpendicular to cable; body upright','Press handles straight out from chest; resist rotation','Hold extended for 1–2s; return under control','No rotation — stillness is the goal']},
+  'co-plank': {pri:['Core'],sec:[],
+    equip:'Bodyweight · Mat',
+    desc:'Isometric core stability exercise. Trains deep stabilisers (transversus abdominis) and anti-extension. Research supports 10–30s holds; longer holds have diminishing returns.',
+    cues:['Forearms under shoulders; body forms straight line head-to-heel','Squeeze glutes; do not let hips sag or pike','Breathe normally — do not hold breath','Set maximum bracing — 360° "belly pressure"']},
+  'co-ab': {pri:['Core'],sec:[],
+    equip:'Ab wheel',
+    desc:'Ab wheel rollout is one of the most effective core anti-extension exercises. High EMG activation of rectus abdominis and obliques.',
+    cues:['Start from knees; progress to standing','Roll out until hips are in line with torso — do not let hips drop','Pull back using abs, not hip flexors','Never go beyond your ability to return — risk of injury']},
+  'co-db': {pri:['Core'],sec:[],
+    equip:'Bodyweight · Mat',
+    desc:'Dead bug — supine anti-extension and contralateral coordination exercise. Trains deep core stability. Low injury risk; high value for lumbar health.',
+    cues:['Flatten lower back into floor — maintain throughout','Opposite arm and leg extend simultaneously','Lower limb extends to just above floor; do not touch','Exhale on extension for increased intra-abdominal pressure']},
+};
+
+// =====================================================================
+// BODY DIAGRAM SVG
+// =====================================================================
+function bodyDiagram(priMgs, secMgs) {
+  const mode = document.documentElement.style.getPropertyValue('--mode').trim() || '#1d9e75';
+  const priSet = new Set(priMgs || []);
+  const secSet = new Set(secMgs || []);
+
+  // Map muscle group name → fill color
+  function col(mg, alt) {
+    const key = mg || alt;
+    if (priSet.has(key)) return mode;
+    if (secSet.has(key)) return mode + '90';
+    return '#242424';
+  }
+
+  const sk = '#2e2e2e';  // neutral body shape
+  const ln = '#1e1e1e';  // outline stroke
+
+  return `<svg viewBox="0 0 290 304" width="100%" style="display:block;border-radius:10px;background:#111">
+
+  <!-- labels -->
+  <text x="72" y="298" text-anchor="middle" font-size="10" fill="#555" font-family="system-ui,sans-serif" font-weight="600" letter-spacing="1">FRONT</text>
+  <text x="218" y="298" text-anchor="middle" font-size="10" fill="#555" font-family="system-ui,sans-serif" font-weight="600" letter-spacing="1">BACK</text>
+  <line x1="145" y1="0" x2="145" y2="290" stroke="#1e1e1e" stroke-width="1"/>
+
+  <!-- ═══ FRONT FIGURE ═══ (center x=72) -->
+  <!-- Silhouette outline -->
+  <path d="M58,43 Q42,49 36,62 Q28,76 27,98 L23,132 L30,152 L42,160 L52,153 L57,195 L52,238 L49,270 L61,270 L64,242 L70,200 L74,200 L80,242 L83,270 L95,270 L92,238 L87,195 L92,153 L102,160 L114,152 L121,132 L117,98 Q116,76 108,62 Q102,49 86,43 Q72,38 58,43 Z"
+    fill="none" stroke="#3a3a3a" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Head -->
+  <circle cx="72" cy="26" r="16" fill="${sk}" stroke="${ln}" stroke-width="1.2"/>
+  <!-- Neck -->
+  <rect x="67" y="42" width="10" height="12" rx="3" fill="${sk}"/>
+  <!-- Forearms front -->
+  <ellipse cx="29" cy="125" rx="7" ry="14" fill="${sk}"/>
+  <ellipse cx="115" cy="125" rx="7" ry="14" fill="${sk}"/>
+  <!-- Knees front -->
+  <ellipse cx="57" cy="208" rx="11" ry="8" fill="${sk}"/>
+  <ellipse cx="87" cy="208" rx="11" ry="8" fill="${sk}"/>
+  <!-- Lower legs front -->
+  <ellipse cx="57" cy="244" rx="9" ry="20" fill="${sk}"/>
+  <ellipse cx="87" cy="244" rx="9" ry="20" fill="${sk}"/>
+
+  <!-- MUSCLE SHAPES FRONT -->
+  <!-- Traps (front portion) -->
+  <ellipse cx="57" cy="52" rx="10" ry="7" transform="rotate(-28 57 52)" fill="${col('Back')}" opacity="0.7"/>
+  <ellipse cx="87" cy="52" rx="10" ry="7" transform="rotate(28 87 52)" fill="${col('Back')}" opacity="0.7"/>
+  <!-- Front Delts -->
+  <ellipse cx="38" cy="67" rx="14" ry="11" transform="rotate(-22 38 67)" fill="${col('Shoulders')}"/>
+  <ellipse cx="106" cy="67" rx="14" ry="11" transform="rotate(22 106 67)" fill="${col('Shoulders')}"/>
+  <!-- Chest L/R -->
+  <ellipse cx="56" cy="78" rx="15" ry="14" fill="${col('Chest')}"/>
+  <ellipse cx="88" cy="78" rx="15" ry="14" fill="${col('Chest')}"/>
+  <!-- Biceps -->
+  <ellipse cx="31" cy="97" rx="9" ry="19" transform="rotate(-7 31 97)" fill="${col('Biceps')}"/>
+  <ellipse cx="113" cy="97" rx="9" ry="19" transform="rotate(7 113 97)" fill="${col('Biceps')}"/>
+  <!-- Abs -->
+  <rect x="63" y="94" width="18" height="32" rx="5" fill="${col('Core')}"/>
+  <!-- Obliques -->
+  <ellipse cx="51" cy="110" rx="10" ry="17" transform="rotate(-12 51 110)" fill="${col('Core')}" opacity="0.75"/>
+  <ellipse cx="93" cy="110" rx="10" ry="17" transform="rotate(12 93 110)" fill="${col('Core')}" opacity="0.75"/>
+  <!-- Quads L/R -->
+  <ellipse cx="57" cy="178" rx="15" ry="27" fill="${col('Legs')}"/>
+  <ellipse cx="87" cy="178" rx="15" ry="27" fill="${col('Legs')}"/>
+
+  <!-- ═══ BACK FIGURE ═══ (center x=218) -->
+  <!-- Silhouette outline -->
+  <path d="M204,43 Q188,49 182,62 Q174,76 173,98 L169,132 L176,152 L188,160 L198,153 L203,195 L198,238 L195,270 L207,270 L210,242 L216,200 L220,200 L226,242 L229,270 L241,270 L238,238 L233,195 L238,153 L248,160 L260,152 L267,132 L263,98 Q262,76 254,62 Q248,49 232,43 Q218,38 204,43 Z"
+    fill="none" stroke="#3a3a3a" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Head -->
+  <circle cx="218" cy="26" r="16" fill="${sk}" stroke="${ln}" stroke-width="1.2"/>
+  <rect x="213" y="42" width="10" height="12" rx="3" fill="${sk}"/>
+  <!-- Forearms back -->
+  <ellipse cx="175" cy="125" rx="7" ry="14" fill="${sk}"/>
+  <ellipse cx="261" cy="125" rx="7" ry="14" fill="${sk}"/>
+  <!-- Knees back -->
+  <ellipse cx="203" cy="208" rx="11" ry="8" fill="${sk}"/>
+  <ellipse cx="233" cy="208" rx="11" ry="8" fill="${sk}"/>
+  <!-- Calves -->
+  <ellipse cx="202" cy="248" rx="10" ry="19" fill="${sk}"/>
+  <ellipse cx="234" cy="248" rx="10" ry="19" fill="${sk}"/>
+
+  <!-- MUSCLE SHAPES BACK -->
+  <!-- Traps upper -->
+  <path d="M196,48 Q218,41 240,48 L234,68 Q218,62 202,68 Z" fill="${col('Back')}"/>
+  <!-- Rear Delts -->
+  <ellipse cx="180" cy="67" rx="14" ry="11" transform="rotate(22 180 67)" fill="${col('Shoulders')}"/>
+  <ellipse cx="256" cy="67" rx="14" ry="11" transform="rotate(-22 256 67)" fill="${col('Shoulders')}"/>
+  <!-- Lats L/R -->
+  <path d="M 180,74 Q 171,90 173,112 L 185,118 Q 184,97 186,78 Z" fill="${col('Back')}"/>
+  <path d="M 256,74 Q 265,90 263,112 L 251,118 Q 252,97 250,78 Z" fill="${col('Back')}"/>
+  <!-- Mid Back -->
+  <rect x="209" y="74" width="18" height="28" rx="4" fill="${col('Back')}" opacity="0.85"/>
+  <!-- Lower Back -->
+  <rect x="210" y="104" width="16" height="16" rx="3" fill="${col('Posterior')}" opacity="0.85"/>
+  <!-- Triceps -->
+  <ellipse cx="172" cy="97" rx="9" ry="19" transform="rotate(7 172 97)" fill="${col('Triceps')}"/>
+  <ellipse cx="264" cy="97" rx="9" ry="19" transform="rotate(-7 264 97)" fill="${col('Triceps')}"/>
+  <!-- Glutes L/R -->
+  <ellipse cx="204" cy="156" rx="17" ry="16" fill="${col('Posterior')}"/>
+  <ellipse cx="232" cy="156" rx="17" ry="16" fill="${col('Posterior')}"/>
+  <!-- Hamstrings L/R -->
+  <ellipse cx="203" cy="188" rx="14" ry="24" fill="${col('Posterior')}"/>
+  <ellipse cx="233" cy="188" rx="14" ry="24" fill="${col('Posterior')}"/>
+
+  <!-- Legend -->
+  <circle cx="8" cy="290" r="5" fill="${mode}"/>
+  <text x="17" y="294" font-size="9" fill="${mode}" font-family="system-ui,sans-serif">Primary</text>
+  <circle cx="68" cy="290" r="5" fill="${mode}" opacity="0.55"/>
+  <text x="77" y="294" font-size="9" fill="#777" font-family="system-ui,sans-serif">Secondary</text>
+</svg>`;
+}
+
+// =====================================================================
+// EXERCISE INFO MODAL
+// =====================================================================
+function showExInfo(exId) {
+  removeExInfo();
+  const ex  = EX[exId];
+  const inf = EX_INFO[exId];
+  if (!ex) return;
+
+  const pri = inf?.pri || [ex.mg];
+  const sec = inf?.sec || [];
+  const modeColor = document.documentElement.style.getPropertyValue('--mode').trim() || '#1d9e75';
+  const mgColor = {'Chest':'#e24b4a','Back':'#378add','Legs':'#1d9e75','Posterior':'#ef9f27',
+    'Shoulders':'#a78bfa','Biceps':'#5dcaa5','Triceps':'#f09595','Core':'#888'};
+  const priColor = mgColor[pri[0]] || modeColor;
+
+  const div = document.createElement('div');
+  div.id = 'ex-info-modal';
+  div.className = 'modal-bg';
+  div.innerHTML = `
+<div class="modal" onclick="event.stopPropagation()" style="padding-bottom:calc(28px + env(safe-area-inset-bottom))">
+  <div class="modal-handle"></div>
+
+  <!-- Title -->
+  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px">
+    <div style="flex:1">
+      <div style="font-size:18px;font-weight:700;line-height:1.2">${ex.n}</div>
+      <div style="font-size:12px;color:var(--txt2);margin-top:4px">${inf?.equip || ex.eq}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0">
+      ${pri.map(m=>`<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;
+        background:${mgColor[m]||modeColor}22;color:${mgColor[m]||modeColor}">${m}</span>`).join('')}
+      ${sec.map(m=>`<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;
+        background:var(--bg3);color:var(--txt2)">${m}</span>`).join('')}
+    </div>
+  </div>
+
+  <!-- Body diagram -->
+  <div style="margin-bottom:16px;border-radius:10px;overflow:hidden">
+    ${bodyDiagram(pri, sec)}
+  </div>
+
+  ${inf?.desc ? `
+  <!-- Description -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:7px">Movement</div>
+    <div style="font-size:13px;color:var(--txt2);line-height:1.6">${inf.desc}</div>
+  </div>` : ''}
+
+  ${inf?.cues?.length ? `
+  <!-- Coaching cues -->
+  <div style="margin-bottom:16px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:7px">Coaching Cues</div>
+    <div style="background:var(--bg2);border-radius:10px;padding:8px 14px">
+      ${inf.cues.map((c,i)=>`
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;
+          ${i<inf.cues.length-1?'border-bottom:1px solid var(--border)':''}">
+          <span style="color:${priColor};font-weight:700;font-size:12px;min-width:16px;margin-top:1px">${i+1}</span>
+          <span style="font-size:13px;color:var(--txt);line-height:1.5">${c}</span>
+        </div>`).join('')}
+    </div>
+  </div>` : ''}
+
+  ${ex.compound ? `
+  <div style="background:rgba(239,159,39,.1);border:1px solid rgba(239,159,39,.25);border-radius:9px;padding:10px 14px;
+    font-size:12px;color:#ef9f27;margin-bottom:16px;line-height:1.5">
+    <strong>Compound movement</strong> — Trains multiple joints and muscle groups simultaneously.
+    Prioritise this exercise first in your session while CNS is fresh.
+  </div>` : ''}
+
+  <button onclick="removeExInfo()" class="btn btn-s btn-xl">Close</button>
+</div>`;
+  div.addEventListener('click', removeExInfo);
+  document.body.appendChild(div);
+}
+
+function removeExInfo() {
+  const m = document.getElementById('ex-info-modal');
+  if (m) m.remove();
+}
+
+// =====================================================================
+// NAV + INIT
+// =====================================================================
+function smartSelectDay(){
+  const ap=getActiveProgram();if(!ap||ap.length===0)return;
+  const h=getHistory();
+  if(!h.length){S.activeDayIdx=0;return;}
+  // Find which day was most recently done
+  const lastDayId=h[0]?.day||null;
+  if(!lastDayId){S.activeDayIdx=0;return;}
+  const lastIdx=ap.findIndex(d=>d.id===lastDayId);
+  if(lastIdx===-1){S.activeDayIdx=0;return;}
+  // Suggest the next day in sequence (wraps around)
+  S.activeDayIdx=(lastIdx+1)%ap.length;
+}
+
+function navTo(scr){
+  if(scr==='active'&&!S.workout)scr='home';
+  S.screen=scr;render();
+}
+
+function init(){
+  const p=getPrefs();
+  if(p.mode&&MODES[p.mode])S.mode=p.mode;
+  if(p.progEx&&EX[p.progEx])S.progEx=p.progEx;
+  // Restore in-progress workout if one exists
+  loadWorkoutState();
+  if(S.workout){
+    document.getElementById('nb-active').style.display='';
+    // wStart was already restored by loadWorkoutState() — don't overwrite it
+    clearInterval(elapsedIv);
+    elapsedIv=setInterval(()=>{const e=document.getElementById('w-elapsed');if(e)e.textContent=fmtElapsed();},1000);
+  }
+  // Auto-select next logical day
+  smartSelectDay();
+  render();
+}
+
+(function(){
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.onload=init;s.onerror=init;
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
